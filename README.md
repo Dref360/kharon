@@ -47,6 +47,7 @@ Shared Science is a FastAPI-based reverse proxy server with Google Authenticatio
 1. Create a Google Cloud Platform (GCP) project and set up the OAuth 2.0 credentials.
 
 2. Create a copy of `.env.default` named `.env` with your GCP credentials and other configuration settings.
+   1. Do the same in `webapp/.env`
 
 ## Usage
 

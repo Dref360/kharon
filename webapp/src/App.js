@@ -9,7 +9,7 @@ import {
 import logo from "./logo.svg";
 
 const BACKEND_URL = "http://0.0.0.0:8000";
-const GOOGLE_ACCESS_KEY = "590400439644-il4durbc07c0dii1isin8lbbqpmdienp.apps.googleusercontent.com"
+const GOOGLE_ACCESS_KEY = process.env.REACT_APP_GOOGLE_CLIENT_ID
 
 const Greeting = () => {
   const { userInfo } = useUserInfoContext();
