@@ -3,6 +3,6 @@ from fastapi import APIRouter
 api = APIRouter()
 
 
-@api.get('/')
+@api.get("/")
 def test():
-    return {'message': 'unprotected api_app endpoint'}
+    return {"message": "unprotected api_app endpoint"}
