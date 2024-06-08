@@ -18,12 +18,17 @@ Shared Science is a FastAPI-based reverse proxy server with Google Authenticatio
 
 ## Features
 
-- [ ] **Reverse Proxy:** Directs incoming requests to the appropriate backend services.
 - [x] **Google Authentication:** Users must log in with their Google accounts to access protected resources.
 - [x] **FastAPI:** Utilizes the FastAPI framework for efficient and fast development.
-- [ ] **Job Scheduler:** Interface with a variety of job scheduling.
-  - [ ] **Docker:** Local Cluster
-  - [ ] **GKE:** Google Kubernetes Engine
+- [ ] **API Key Management:** User can create/delete keys.
+- [ ] **SharedScienceDaemon (SSD):** Small daemon that we can [tunnel](https://pypi.org/project/sshtunnel/) into with SSH.
+  - [ ] Create daemon that can authenticate to the main server and link jobs.
+  - [ ] **Reverse Proxy:** Directs incoming requests to the appropriate backend services.
+
+### Key idea
+
+The idea is that the proxy is done through a SSH tunnel, making the whole connection secure.
+A user goes on the website, authenticate itself and can see jobs linked to their daemon. They can then access the webpage behind over the tunnel.
 
 ### Recipes
 
