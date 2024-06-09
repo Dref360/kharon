@@ -6,19 +6,20 @@
 
 ⚠️ Under Construction! ⚠️
 
-**Reverse Proxy Server with Google Auth**
+**Reverse Proxy Server with Authentication and Authorization**
 
 ---
 
 ## Overview
 
-   This project solves the problem of sharing Docker based applications with other people in your organization. This way, you can safely create
+This project solves the problem of sharing Docker based applications with other people in your organization. This way, you can safely create dashboard with private data and share it with specific people.
 
 Shared Science is a FastAPI-based reverse proxy server with Google Authentication. It allows you to secure your applications by requiring users to authenticate via their Google accounts before accessing web servers spawned on different architecture.
 
 ## Features
 
 - [x] **Google Authentication:** Users must log in with their Google accounts to access protected resources.
+- [ ] **Authorization:** Use [Casbin](https://dev.to/teresafds/authorization-on-fastapi-with-casbin-41og) to authorize people to access jobs.
 - [x] **FastAPI:** Utilizes the FastAPI framework for efficient and fast development.
 - [ ] **API Key Management:** User can create/delete keys.
 - [ ] **SharedScienceDaemon (SSD):** Small daemon that we can [tunnel](https://pypi.org/project/sshtunnel/) into with SSH.
@@ -27,7 +28,7 @@ Shared Science is a FastAPI-based reverse proxy server with Google Authenticatio
 
 ### Key idea
 
-The idea is that the proxy is done through a SSH tunnel, making the whole connection secure.
+The idea is that the proxy is done through an SSH tunnel, making the whole connection secure.
 A user goes on the website, authenticate itself and can see jobs linked to their daemon. They can then access the webpage behind over the tunnel.
 
 ### Recipes
