@@ -4,8 +4,6 @@ import httpx
 from fastapi import APIRouter, Depends
 from fastapi import Body
 from fastapi.security import OAuth2PasswordBearer
-from google.auth.transport import requests
-from google.oauth2 import id_token
 from pydantic import BaseModel
 
 # Google OAuth2 configuration
@@ -33,8 +31,6 @@ def validate_access_token(access_token):
     raise 400
 
 
-def parse_id_token(token):
-    return id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
 
 
 class CodeFlow(BaseModel):
@@ -43,6 +39,14 @@ class CodeFlow(BaseModel):
 
 @app.post("/google")
 async def auth_google(body: CodeFlow = Body(...)):
+    """Authentify access code
+
+    Args:
+        body (CodeFlow, optional): Auth code    
+
+    Returns:
+        _type_: _description_
+    """
     token_url = "https://accounts.google.com/o/oauth2/token"
     data = {
         "code": body.code,

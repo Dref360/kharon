@@ -1,5 +1,5 @@
 <p align="center">
-   <img src="docs/logo.png", width="40%">
+   <img src="docs/assets/logo.png", width="40%">
 </p>
 
 # Shared Science
@@ -12,16 +12,20 @@
 
 ## Overview
 
-This project solves the problem of sharing Docker based applications with other people in your organization. This way, you can safely create dashboard with private data and share it with specific people.
+This project solves the problem of sharing applications with other people around the world. This way, you can safely create dashboards with private data and share it with specific people without setting up the AuthN/Z yourself.
 
-Shared Science is a FastAPI-based reverse proxy server with Google Authentication. It allows you to secure your applications by requiring users to authenticate via their Google accounts before accessing web servers spawned on different architecture.
+Shared Science is a FastAPI-based reverse proxy server with Google Authentication. It allows you to secure your applications by requiring users to authenticate via their Google accounts before accessing web servers spawned on different architectures.
+
+<p align="center">
+   <img src="docs/assets/diagram.png", width="40%">
+</p>
 
 ## Features
 
 - [x] **Google Authentication:** Users must log in with their Google accounts to access protected resources.
 - [ ] **Authorization:** Use [Casbin](https://dev.to/teresafds/authorization-on-fastapi-with-casbin-41og) to authorize people to access jobs.
 - [x] **FastAPI:** Utilizes the FastAPI framework for efficient and fast development.
-- [ ] **API Key Management:** User can create/delete keys.
+- [ ] **API Key Management:** Users can create/delete keys.
 - [ ] **SharedScienceDaemon (SSD):** Small daemon that we can [tunnel](https://pypi.org/project/sshtunnel/) into with SSH.
   - [ ] Create daemon that can authenticate to the main server and link jobs.
   - [ ] **Reverse Proxy:** Directs incoming requests to the appropriate backend services.
@@ -29,7 +33,7 @@ Shared Science is a FastAPI-based reverse proxy server with Google Authenticatio
 ### Key idea
 
 The idea is that the proxy is done through an SSH tunnel, making the whole connection secure.
-A user goes on the website, authenticate itself and can see jobs linked to their daemon. They can then access the webpage behind over the tunnel.
+A user goes on the website, authenticates themselves and can see jobs linked to their account. They can then access the webpage over the tunnel.
 
 ### Recipes
 
@@ -62,10 +66,17 @@ A user goes on the website, authenticate itself and can see jobs linked to their
 1. Start the FastAPI server:
 
    ```bash
-   poetry run uvicorn shared_science.app:app --reload
+   poetry run fastapi dev shared_science/app.py
    ```
 
-2. Access the reverse proxy at `http://localhost:8000` and follow the Google Authentication flow.
+2. Start the frontend
+
+   ```bash
+   cd webapp && npm install
+   npm start
+   ```
+
+3. Access the reverse proxy at `http://localhost:8000` and follow the Google Authentication flow.
 
 ## Contributing
 
@@ -78,5 +89,6 @@ This project is licensed under the Apache V2 License - see the [LICENSE](LICENSE
 ## Acknowledgments
 
 - FastAPI: https://fastapi.tiangolo.com/
+- SQLModel: https://sqlmodel.tiangolo.com/
 
 Thank you for using Shared Science!
