@@ -1,10 +1,9 @@
 import pytest
 from fastapi import HTTPException
-from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine, select
 from sqlmodel.pool import StaticPool
 
-from shared_science.auth import create_api_key
+from shared_science.auth import create_api_key, disable_api_key
 from shared_science.dependencies import get_current_user
 from shared_science.models import User, Cluster, Job, APIKey
 from shared_science.models.jobs import JobDescription
@@ -21,7 +20,6 @@ def session_fixture():
 
 
 def test_create_jobs(session: Session):
-
     one_user = User(email="abc.yahoo.ca")
     session.add(one_user)
     session.commit()
@@ -52,8 +50,17 @@ def test_api_token(session):
     keys = session.exec(select(APIKey).where(APIKey.user_id == one_user.id)).all()
     assert len(keys) == 1
     # Assert that we don't store keys in plain text
-    assert keys[0].user_id == one_user.id and keys[0].hashed_key != api_key
+    assert keys[0].user_id == one_user.id and keys[0].hashed_key != api_key and keys[0].is_active
 
     assert get_current_user(token=api_key, session=session) == one_user
     with pytest.raises(HTTPException, match='404'):
-        assert get_current_user(token='ss-potato', session=session)
+        get_current_user(token='ss-potato', session=session)
+
+    disable_api_key(api_key, session)
+    updated_key = session.exec(select(APIKey).where(APIKey.user_id == one_user.id)).first()
+    assert updated_key is not None
+    assert not updated_key.is_active
+
+    with pytest.raises(HTTPException, match='404'):
+        # Disabled so can't find it.
+        get_current_user(token=api_key, session=session)

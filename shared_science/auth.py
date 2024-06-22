@@ -32,9 +32,18 @@ def create_api_key(user_id: int, session: Session) -> str:
     return api_key
 
 
+def disable_api_key(api_key: str, session: Session) -> None:
+    hashed_key = hashlib.sha256(api_key.encode()).hexdigest()
+    db_api_key = session.exec(select(APIKey).where(APIKey.hashed_key == hashed_key)).first()
+    if db_api_key and db_api_key.is_active:
+        db_api_key.is_active = False
+        session.add(db_api_key)
+        session.commit()
+
+
 def get_user_by_api_key(api_key: str, session: Session) -> Optional[User]:
     hashed_key = hashlib.sha256(api_key.encode()).hexdigest()
     db_api_key = session.exec(select(APIKey).where(APIKey.hashed_key == hashed_key)).first()
-    if db_api_key:
+    if db_api_key and db_api_key.is_active:
         return session.exec(select(User).where(User.id == db_api_key.user_id)).first()
     return None
