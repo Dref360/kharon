@@ -1,9 +1,12 @@
 import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine, select
 from sqlmodel.pool import StaticPool
 
-from shared_science.models import User, Cluster, Job
+from shared_science.auth import create_api_key
+from shared_science.dependencies import get_current_user
+from shared_science.models import User, Cluster, Job, APIKey
 from shared_science.models.jobs import JobDescription
 
 
@@ -37,3 +40,20 @@ def test_create_jobs(session: Session):
 
     jobs = session.exec(select(Job).where(Job.creator == one_user.id)).all()
     assert len(jobs) == 1 and jobs[0].name == "Super App"
+
+
+def test_api_token(session):
+    one_user = User(email="abc.yahoo.ca")
+    session.add(one_user)
+    session.commit()
+
+    api_key = create_api_key(one_user.id, session)
+    assert api_key.startswith('ss-')
+    keys = session.exec(select(APIKey).where(APIKey.user_id == one_user.id)).all()
+    assert len(keys) == 1
+    # Assert that we don't store keys in plain text
+    assert keys[0].user_id == one_user.id and keys[0].hashed_key != api_key
+
+    assert get_current_user(token=api_key, session=session) == one_user
+    with pytest.raises(HTTPException, match='404'):
+        assert get_current_user(token='ss-potato', session=session)
