@@ -3,6 +3,9 @@ from typing import Optional, List
 
 from sqlmodel import SQLModel, Field
 
+class ClusterStatus(str, Enum):
+    healthy = "healthy"
+    not_healthy = "not_healthy"
 
 class ClusterType(str, Enum):
     # TODO We should be able to add to this enum for custom setup.
@@ -13,4 +16,7 @@ class Cluster(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     creator: Optional[int] = Field(default=None, foreign_key="user.id")
     name: str
+    host: str
+    status: ClusterStatus
+    # Unused for now
     type: ClusterType = ClusterType.docker
