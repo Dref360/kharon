@@ -4,6 +4,7 @@ import secrets
 from typing import Optional
 
 import httpx
+from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session, select
 
 from shared_science.models import User, APIKey
@@ -11,6 +12,8 @@ from shared_science.models import User, APIKey
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = "http://localhost:3000"  # Update with your redirect URI
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")  # No token URL
 
 
 def get_user_from_access_token(access_token: str, session: Session) -> Optional[User]:
@@ -25,7 +28,7 @@ def get_user_from_access_token(access_token: str, session: Session) -> Optional[
 
 def create_api_key(user_id: int, session: Session) -> str:
     api_key = f"ss-{secrets.token_urlsafe(32)}"
-    hashed_key = hashlib.sha256(api_key.encode()).hexdigest()
+    hashed_key = hash_token(api_key)
     db_api_key = APIKey(hashed_key=hashed_key, user_id=user_id)
     session.add(db_api_key)
     session.commit()
@@ -33,7 +36,7 @@ def create_api_key(user_id: int, session: Session) -> str:
 
 
 def disable_api_key(api_key: str, session: Session) -> None:
-    hashed_key = hashlib.sha256(api_key.encode()).hexdigest()
+    hashed_key = hash_token(api_key)
     db_api_key = session.exec(select(APIKey).where(APIKey.hashed_key == hashed_key)).first()
     if db_api_key and db_api_key.is_active:
         db_api_key.is_active = False
@@ -42,8 +45,12 @@ def disable_api_key(api_key: str, session: Session) -> None:
 
 
 def get_user_by_api_key(api_key: str, session: Session) -> Optional[User]:
-    hashed_key = hashlib.sha256(api_key.encode()).hexdigest()
+    hashed_key = hash_token(api_key)
     db_api_key = session.exec(select(APIKey).where(APIKey.hashed_key == hashed_key)).first()
     if db_api_key and db_api_key.is_active:
         return session.exec(select(User).where(User.id == db_api_key.user_id)).first()
     return None
+
+
+def hash_token(token):
+    return hashlib.sha256(token.encode()).hexdigest()

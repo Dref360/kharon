@@ -14,10 +14,10 @@
 
 This project solves the problem of sharing applications with other people around the world. This way, you can safely create dashboards with private data and share it with specific people without setting up the AuthN/Z yourself.
 
-Shared Science is a FastAPI-based reverse proxy server with Google Authentication. It allows you to secure your applications by requiring users to authenticate via their Google accounts before accessing web servers spawned on different architectures.
+Shared Science is a FastAPI-based reverse proxy server with Google Authentication. It allows you to secure your applications by requiring users to authenticate via their Google accounts before accessing web servers using an SSH tunnel.
 
 <p align="center">
-   <img src="docs/assets/diagram.png", width="40%">
+   <img src="docs/assets/diagram.png" width="40%">
 </p>
 
 ## Features

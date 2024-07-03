@@ -1,10 +1,9 @@
-from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, Query, Path
 from sqlalchemy import create_engine
-from sqlmodel import Session
+from sqlmodel import Session, select
 
-from shared_science.auth import get_user_by_api_key, get_user_from_access_token
-from shared_science.models import User
+from shared_science.auth import get_user_by_api_key, get_user_from_access_token, oauth2_scheme
+from shared_science.models import User, Cluster
 
 # Setup Database
 sqlite_file_name = "database.db"
@@ -20,7 +19,7 @@ def get_session():
 
 
 def get_current_user(
-    token: str = Depends(OAuth2PasswordBearer), session: Session = Depends(get_session)
+        token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)
 ) -> User:
     if token.startswith("ss-"):
         # API Token
@@ -31,3 +30,15 @@ def get_current_user(
     if user is None:
         raise HTTPException(status_code=404, detail="Not Found")
     return user
+
+
+def get_cluster(
+        cluster_name: str = Path(),
+        user: User = Depends(get_current_user),
+        session: Session = Depends(get_session)
+) -> Cluster:
+    cluster = session.exec(
+        select(Cluster).where(Cluster.name == cluster_name).where(Cluster.creator == user.id)).first()
+    if cluster is None:
+        raise HTTPException(404, "Not Found")
+    return cluster

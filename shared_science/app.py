@@ -1,16 +1,44 @@
+import logging
+import os
+
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import SQLModel
+from sqlmodel import SQLModel, Session, select
 
+from shared_science.auth import create_api_key
 from shared_science.dependencies import get_current_user, engine
 from shared_science.models import *  # noqa Need this to load models into SQLModel
+from shared_science.models.clusters import ClusterStatus
 from shared_science.routers.api import api as app_router
 from shared_science.routers.api_public import api as public_router
 from shared_science.routers.auth import app as auth_router
+from shared_science.routers.cluster import api as cluster_router
+
+log = logging.getLogger()
 
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
+
+    if os.getenv("SS_DEBUG"):
+        # Creating temp user for debugging
+        temp_email = 'temp@temp.com'
+        with Session(engine) as session:
+            if (temp := session.exec(select(User).where(User.email == temp_email)).first()) is None:
+                temp = User(
+                    email=temp_email
+                )
+                session.add(temp)
+                session.commit()
+                session.refresh(temp)
+                # TODO very bad
+                cluster = Cluster(creator=temp.id, name="potato-whiskey", host="172.20.128.2",
+                                  status=ClusterStatus.healthy)
+                session.add(cluster)
+                session.commit()
+            token = create_api_key(temp.id, session=session)
+            print("User:", temp.email)
+            print("API Token:", token)
 
 
 # Setup routers
@@ -32,12 +60,8 @@ def on_startup():
 
 app.include_router(auth_router, prefix="/auth")
 app.include_router(app_router, prefix="/app", dependencies=[Depends(get_current_user)])
+app.include_router(cluster_router, prefix="/cluster", dependencies=[Depends(get_current_user)])
 app.include_router(
     public_router,
     prefix="/public",
 )
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)

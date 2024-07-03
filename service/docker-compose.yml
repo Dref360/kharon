@@ -1,0 +1,25 @@
+services:
+  openssh-server:
+    image: shared-science/ssdaemon
+    build: .
+    container_name: openssh-server
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.2
+    hostname: openssh-server #optional
+    environment:
+      - DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - PASSWORD_ACCESS=true #optional
+      - USER_PASSWORD=password #optional
+      - USER_NAME=shared #optional
+    ports:
+      - 2222:2222
+    restart: unless-stopped
+networks:
+  static-network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
