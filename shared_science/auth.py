@@ -1,10 +1,11 @@
 import hashlib
 import os
 import secrets
+from datetime import datetime, timedelta
 from typing import Optional
 
-import httpx
 from fastapi.security import OAuth2PasswordBearer
+from jose import jwt
 from sqlmodel import Session, select
 
 from shared_science.models import User, APIKey
@@ -12,14 +13,22 @@ from shared_science.models import User, APIKey
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = "http://localhost:3000"  # Update with your redirect URI
+ACCESS_TOKEN_EXPIRE_MINUTES = 3600
+ALGORITHM = "HS256"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")  # No token URL
 
 
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, GOOGLE_CLIENT_SECRET, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
 def get_user_from_access_token(access_token: str, session: Session) -> Optional[User]:
-    data = httpx.get(
-        f"https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token}"
-    ).json()
+    data = jwt.decode(access_token, GOOGLE_CLIENT_SECRET, algorithms=[ALGORITHM])
     if data["issued_to"] == GOOGLE_CLIENT_ID:
         email = data["email"]
         return session.exec(select(User).where(User.email == email)).first()

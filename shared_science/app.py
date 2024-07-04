@@ -68,3 +68,5 @@ app.include_router(
     public_router,
     prefix="/public",
 )
+for r in app.routes:
+    print("Route", dict(methods=r.__dict__.get("methods"), path=r.__dict__["path"]))
