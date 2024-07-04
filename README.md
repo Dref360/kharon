@@ -23,7 +23,7 @@ Shared Science is a FastAPI-based reverse proxy server with Google Authenticatio
 ## Features
 
 - [x] **Google Authentication:** Users must log in with their Google accounts to access protected resources.
-- [ ] **Authorization:** Use [Casbin](https://dev.to/teresafds/authorization-on-fastapi-with-casbin-41og) to authorize people to access jobs.
+- [x] **Authorization:** Authorize people to access jobs (using [Casbin](https://dev.to/teresafds/authorization-on-fastapi-with-casbin-41og) would be a great future implementation for fine-grained AuthZ).
 - [x] **FastAPI:** Utilizes the FastAPI framework for efficient and fast development.
 - [x] **API Key Management:** Users can create/delete keys.
 - [ ] **SharedScienceDaemon (SSD):** Small daemon that we can [tunnel](https://pypi.org/project/sshtunnel/) into with SSH.
