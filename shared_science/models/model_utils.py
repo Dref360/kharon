@@ -1,15 +1,35 @@
 # type: ignore
 import json
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Optional, List
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import parse_obj_as
 from pydantic.v1.main import ModelMetaclass
-from sqlmodel import TypeDecorator, JSON
+from sqlalchemy.orm import registry
+from sqlmodel import TypeDecorator, JSON, SQLModel, Field, Column, Session
 
 T = TypeVar("T")
 
 recursive_custom_encoder = jsonable_encoder
+
+mapper_registry = registry()
+
+
+class ResourceSQLModel(SQLModel):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_read_allow: str = ""
+
+    @property
+    def resource_name(self):
+        return f"{self.__class__.__name__}-{self.id}"
+
+    def add_user(self, email: str, session: Session):
+        # SQLLite doesn't support array type so that's a bummer
+        self.user_read_allow = ",".join(self.user_read_allow.split(",") + [email])
+        session.add(self)
+        session.commit()
+        session.refresh(self)
+
 
 """
 Taken from:

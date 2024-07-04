@@ -22,18 +22,21 @@ def create_db_and_tables():
 
     if os.getenv("SS_DEBUG"):
         # Creating temp user for debugging
-        temp_email = 'temp@temp.com'
+        temp_email = "temp@temp.com"
         with Session(engine) as session:
             if (temp := session.exec(select(User).where(User.email == temp_email)).first()) is None:
-                temp = User(
-                    email=temp_email
-                )
+                temp = User(email=temp_email)
                 session.add(temp)
                 session.commit()
                 session.refresh(temp)
                 # TODO very bad
-                cluster = Cluster(creator=temp.id, name="potato-whiskey", host="172.20.128.2",
-                                  status=ClusterStatus.healthy)
+                cluster = Cluster(
+                    creator=temp.id,
+                    name="potato-whiskey",
+                    host="172.20.128.2",
+                    status=ClusterStatus.healthy,
+                    user_read_allow=temp.email,
+                )
                 session.add(cluster)
                 session.commit()
             token = create_api_key(temp.id, session=session)

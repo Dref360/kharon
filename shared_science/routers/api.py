@@ -25,4 +25,3 @@ def get_me(user: User = Depends(get_current_user)):
 def create_user_api_key(user: User = Depends(get_current_user), session=Depends(get_session)):
     api_key = create_api_key(assert_not_none(user.id), session)
     return {"api_key": api_key}
-

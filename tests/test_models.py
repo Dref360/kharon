@@ -6,6 +6,7 @@ from sqlmodel.pool import StaticPool
 from shared_science.auth import create_api_key, disable_api_key
 from shared_science.dependencies import get_current_user
 from shared_science.models import User, Cluster, Job, APIKey
+from shared_science.models.clusters import ClusterStatus
 from shared_science.models.jobs import JobDescription
 
 
@@ -24,7 +25,8 @@ def test_create_jobs(session: Session):
     session.add(one_user)
     session.commit()
 
-    one_cluster = Cluster(creator=one_user.id, name="App Cluster")
+    one_cluster = Cluster(creator=one_user.id, name="App Cluster", host='0.0.0.0', user_read_allow=one_user.email,
+                          status=ClusterStatus.healthy)
     session.add(one_cluster)
     session.commit()
 

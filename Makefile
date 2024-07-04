@@ -12,7 +12,7 @@ format:
 
 .PHONY: mypy
 mypy:
-	poetry run mypy --show-error-codes shared_science
+	poetry run mypy --implicit-reexport --show-error-codes shared_science
 
 
 .PHONY: check-mypy-error-count

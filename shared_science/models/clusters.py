@@ -1,19 +1,22 @@
 from enum import Enum
-from typing import Optional, List
+from typing import Optional
 
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field
+
+from shared_science.models.model_utils import ResourceSQLModel, mapper_registry
+
 
 class ClusterStatus(str, Enum):
     healthy = "healthy"
     not_healthy = "not_healthy"
+
 
 class ClusterType(str, Enum):
     # TODO We should be able to add to this enum for custom setup.
     docker = "docker"
 
 
-class Cluster(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+class Cluster(ResourceSQLModel, table=True):  # type: ignore
     creator: Optional[int] = Field(default=None, foreign_key="user.id")
     name: str
     host: str

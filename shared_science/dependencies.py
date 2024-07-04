@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlmodel import Session, select
 
 from shared_science.auth import get_user_by_api_key, get_user_from_access_token, oauth2_scheme
+from shared_science.iam import has_access_to_resource
 from shared_science.models import User, Cluster
 
 # Setup Database
@@ -19,7 +20,7 @@ def get_session():
 
 
 def get_current_user(
-        token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)
+    token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)
 ) -> User:
     if token.startswith("ss-"):
         # API Token
@@ -33,12 +34,13 @@ def get_current_user(
 
 
 def get_cluster(
-        cluster_name: str = Path(),
-        user: User = Depends(get_current_user),
-        session: Session = Depends(get_session)
+    cluster_name: str = Path(),
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
 ) -> Cluster:
-    cluster = session.exec(
-        select(Cluster).where(Cluster.name == cluster_name).where(Cluster.creator == user.id)).first()
+    cluster = session.exec(select(Cluster).where(Cluster.name == cluster_name)).first()
     if cluster is None:
         raise HTTPException(404, "Not Found")
+    elif not has_access_to_resource(user.email, cluster):
+        raise HTTPException(403, "Forbidden")
     return cluster

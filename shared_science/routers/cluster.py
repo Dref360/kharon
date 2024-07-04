@@ -14,10 +14,9 @@ from shared_science.dependencies import get_cluster
 from shared_science.dependencies import get_session, get_current_user
 from shared_science.models import User, Cluster
 from shared_science.models.clusters import ClusterStatus
+from shared_science.typing import assert_not_none
 
 api = APIRouter()
-
-TARGET_URL = "https://github.com"
 
 
 class ConnectionResponse(BaseModel):
@@ -25,59 +24,64 @@ class ConnectionResponse(BaseModel):
     public_key: str
 
 
-@api.get("/connect",
-         summary="Connect a cluster to SharedScience.")
-def get_connect_daemon(request: Request,
-                       name: Optional[str] = None,  # TODO Probably doesn't need this
-                       user: User = Depends(get_current_user),
-                       session: Session = Depends(get_session),
-                       token: str = Depends(oauth2_scheme),
-                       ) -> ConnectionResponse:
-    if not token.startswith('ss-'):
+@api.get("/connect", summary="Connect a cluster to SharedScience.")
+def get_connect_daemon(
+    request: Request,
+    name: Optional[str] = None,  # TODO Probably doesn't need this
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+    token: str = Depends(oauth2_scheme),
+) -> ConnectionResponse:
+    if not token.startswith("ss-"):
         raise HTTPException(400, detail="Daemon can only connect with tokens.")
 
-    client_host = request.client.host
-    _, ssh_public_key = sshutils.get_ssh_keys(token)
+    cluster_name = name or names_generator.generate_name(style="hyphen")
+
+    client_host = assert_not_none(request.client).host
+    _, ssh_public_key = sshutils.get_ssh_keys(cluster_name)
     if name is None:
-        name = names_generator.generate_name(style='hyphen')
+        # New cluster
         cluster = Cluster(
             creator=user.id,
-            name=name,
+            name=cluster_name,
             host=client_host,
-            status=ClusterStatus.healthy
+            status=ClusterStatus.healthy,
+            user_read_allow=user.email,
         )
         session.add(cluster)
         session.commit()
     else:
-        cluster = session.exec(select(Cluster).where(Cluster.name == name).where(Cluster.creator == user.id)).first()
-        if cluster is None:
+        check_exist = session.exec(
+            select(Cluster).where(Cluster.name == name).where(Cluster.creator == user.id)
+        ).first()
+        if check_exist is None:
             raise HTTPException(404, "Cluster not found")
-    return ConnectionResponse(
-        name=name,
-        public_key=open(ssh_public_key, 'r').read()
-    )
+    return ConnectionResponse(name=cluster_name, public_key=open(ssh_public_key, "r").read())
 
 
-@api.api_route("/{cluster_name}/{forward_path:path}", methods=["GET", "POST", "PUT", "DELETE"],
-               summary="Proxy function")
-async def reverse_proxy(forward_path: str, request: Request, cluster: Cluster = Depends(get_cluster),
-                        token: str = Depends(oauth2_scheme)):
-    url = f"{TARGET_URL}/{forward_path}"
-    key, _ = sshutils.get_ssh_keys(token)
+@api.api_route(
+    "/{cluster_name}/{forward_path:path}",
+    methods=["GET", "POST", "PUT", "DELETE"],
+    summary="Proxy function",
+)
+async def reverse_proxy(
+    forward_path: str, request: Request, cluster: Cluster = Depends(get_cluster)
+):
+    key, _ = sshutils.get_ssh_keys(cluster.name)
     ssh_tunnel = sshutils.get_ssh_tunnel(ip=cluster.host, port=2222, private_key=key)
     # Forward the request to the target server
     async with httpx.AsyncClient() as client:
         try:
             response = await client.request(
                 method=request.method,
-                url=f'http://127.0.0.1:{ssh_tunnel.local_bind_port}/{forward_path}',
+                url=f"http://127.0.0.1:{ssh_tunnel.local_bind_port}/{forward_path}",
                 headers=request.headers,
-                content=await request.body()
+                content=await request.body(),
             )
             return Response(
                 content=response.content,
                 status_code=response.status_code,
-                headers=dict(response.headers)
+                headers=dict(response.headers),
             )
         except httpx.HTTPError:
             # TODO If the request fails, we should redirect to index.html for client-side routing
