@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Optional, List
 
 import httpx
 import names_generator
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from httpx import Response
 from pydantic import BaseModel
 from sqlmodel import Session, select
@@ -57,6 +57,46 @@ def get_connect_daemon(
         if check_exist is None:
             raise HTTPException(404, "Cluster not found")
     return ConnectionResponse(name=cluster_name, public_key=open(ssh_public_key, "r").read())
+
+
+class ClusterView(BaseModel):
+    name: str
+    online: bool
+    url: str
+    description: str = ""
+
+
+class ClusterResponse(BaseModel):
+    clusters: List[ClusterView]
+
+
+@api.get("/list", summary="List clusters created by a user")
+def list_clusters(
+    user: User = Depends(get_current_user), session: Session = Depends(get_session)
+) -> ClusterResponse:
+    # TODO Add server the person has access to
+    clusters = session.exec(select(Cluster).where(Cluster.creator == user.id)).all()
+    return ClusterResponse(
+        clusters=[
+            ClusterView(
+                name=c.name,
+                online=c.status == ClusterStatus.healthy,
+                url=f"/cluster/{c.name}",
+                description="Http Server",
+            )
+            for c in clusters
+        ]
+    )
+
+
+@api.post("/add_user/{cluster_name}", summary="Add user to a cluster")
+def add_user_to_cluster(
+    email: str = Query(...),
+    cluster: Cluster = Depends(get_cluster),
+    session: Session = Depends(get_session),
+):
+    cluster.add_user(email, session)
+    return "OK"
 
 
 @api.api_route(
