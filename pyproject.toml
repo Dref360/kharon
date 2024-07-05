@@ -23,6 +23,7 @@ sqlmodel = "^0.0.16"
 sshtunnel = "^0.4.0"
 platformdirs = "^4.2.2"
 names-generator = "^0.2.0"
+typer = "^0.12.3"
 
 
 [tool.poetry.group.dev.dependencies]

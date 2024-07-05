@@ -14,7 +14,7 @@ interface ClustersResponse {
 }
 
 const fetchClusters = async (authToken: string) => {
-  return await fetch("/cluster/list", {
+  return await fetch("/clusters/list", {
     headers: {
       Authorization: `Bearer ${authToken}`,
     },

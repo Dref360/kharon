@@ -63,7 +63,7 @@ def on_startup():
 
 app.include_router(auth_router, prefix="/auth")
 app.include_router(app_router, prefix="/app", dependencies=[Depends(get_current_user)])
-app.include_router(cluster_router, prefix="/cluster", dependencies=[Depends(get_current_user)])
+app.include_router(cluster_router, prefix="/clusters", dependencies=[Depends(get_current_user)])
 app.include_router(
     public_router,
     prefix="/public",

@@ -1,6 +1,6 @@
 .PHONY: lint
 lint: check-mypy-error-count
-	poetry run flake8 kharon
+	poetry run flake8 kharon service
 
 .PHONY: test
 test: lint
@@ -8,11 +8,11 @@ test: lint
 
 .PHONY: format
 format:
-	poetry run black kharon
+	poetry run black kharon service
 
 .PHONY: mypy
 mypy:
-	poetry run mypy --implicit-reexport --show-error-codes kharon
+	poetry run mypy --implicit-reexport --show-error-codes kharon service
 
 
 .PHONY: check-mypy-error-count
@@ -25,7 +25,7 @@ check-mypy-error-count:
 		false; \
 	fi
 
-SRC_FOLDER    ?= ./kharon
+SRC_FOLDER    ?= ./kharon ./service
 REPORT_FOLDER ?= ./reports
 
 ./reports/security/bandit/:

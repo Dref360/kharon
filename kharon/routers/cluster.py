@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, List
 
 import httpx
@@ -18,6 +19,8 @@ from kharon.typing import assert_not_none
 
 api = APIRouter()
 
+log = logging.getLogger()
+
 
 class ConnectionResponse(BaseModel):
     name: str
@@ -35,11 +38,13 @@ def get_connect_daemon(
     if not token.startswith("ss-"):
         raise HTTPException(400, detail="Daemon can only connect with tokens.")
 
-    cluster_name = name or names_generator.generate_name(style="hyphen")
+    is_new_cluster = name in ("", None)
+    cluster_name = name if not is_new_cluster else names_generator.generate_name(style="hyphen")
 
     client_host = assert_not_none(request.client).host
     _, ssh_public_key = sshutils.get_ssh_keys(cluster_name)
-    if name is None:
+    if is_new_cluster:
+        log.info(f"New Cluster {cluster_name}")
         # New cluster
         cluster = Cluster(
             creator=user.id,
@@ -51,6 +56,7 @@ def get_connect_daemon(
         session.add(cluster)
         session.commit()
     else:
+        log.info(f"Existing Cluster: {cluster_name}")
         check_exist = session.exec(
             select(Cluster).where(Cluster.name == name).where(Cluster.creator == user.id)
         ).first()
@@ -81,7 +87,7 @@ def list_clusters(
             ClusterView(
                 name=c.name,
                 online=c.status == ClusterStatus.healthy,
-                url=f"/cluster/{c.name}",
+                url=f"/clusters/{c.name}",
                 description="Http Server",
             )
             for c in clusters
