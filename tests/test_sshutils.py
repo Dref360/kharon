@@ -3,8 +3,8 @@ import os
 import random
 import time
 
-from shared_science.auth import hash_token
-from shared_science.sshutils import get_ssh_keys
+from kharon.auth import hash_token
+from kharon.sshutils import get_ssh_keys
 
 
 def test_ssh_key_creation():

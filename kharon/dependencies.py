@@ -2,9 +2,9 @@ from fastapi import Depends, HTTPException, Query, Path
 from sqlalchemy import create_engine
 from sqlmodel import Session, select
 
-from shared_science.auth import get_user_by_api_key, get_user_from_access_token, oauth2_scheme
-from shared_science.iam import has_access_to_resource
-from shared_science.models import User, Cluster
+from kharon.auth import get_user_by_api_key, get_user_from_access_token, oauth2_scheme
+from kharon.iam import has_access_to_resource
+from kharon.models import User, Cluster
 
 # Setup Database
 sqlite_file_name = "database.db"

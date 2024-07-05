@@ -5,14 +5,14 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel, Session, select
 
-from shared_science.auth import create_api_key
-from shared_science.dependencies import get_current_user, engine
-from shared_science.models import *  # noqa Need this to load models into SQLModel
-from shared_science.models.clusters import ClusterStatus
-from shared_science.routers.api import api as app_router
-from shared_science.routers.api_public import api as public_router
-from shared_science.routers.auth import app as auth_router
-from shared_science.routers.cluster import api as cluster_router
+from kharon.auth import create_api_key
+from kharon.dependencies import get_current_user, engine
+from kharon.models import *  # noqa Need this to load models into SQLModel
+from kharon.models.clusters import ClusterStatus
+from kharon.routers.api import api as app_router
+from kharon.routers.api_public import api as public_router
+from kharon.routers.auth import app as auth_router
+from kharon.routers.cluster import api as cluster_router
 
 log = logging.getLogger()
 

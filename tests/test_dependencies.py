@@ -3,9 +3,9 @@ from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 
-from shared_science.dependencies import get_cluster
-from shared_science.models import User, Cluster
-from shared_science.models.clusters import ClusterStatus
+from kharon.dependencies import get_cluster
+from kharon.models import User, Cluster
+from kharon.models.clusters import ClusterStatus
 
 
 @pytest.fixture(name="session")

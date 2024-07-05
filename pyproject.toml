@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "shared-science"
+name = "kharon"
 version = "0.1.0"
 description = "Proxy server with authentication"
 authors = ["Dref360 <frederic.branchaud.charron@gmail.com>"]

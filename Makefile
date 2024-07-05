@@ -1,22 +1,22 @@
 .PHONY: lint
 lint: check-mypy-error-count
-	poetry run flake8 shared_science
+	poetry run flake8 kharon
 
 .PHONY: test
 test: lint
-	poetry run pytest tests --cov=shared_science
+	poetry run pytest tests --cov=kharon
 
 .PHONY: format
 format:
-	poetry run black shared_science
+	poetry run black kharon
 
 .PHONY: mypy
 mypy:
-	poetry run mypy --implicit-reexport --show-error-codes shared_science
+	poetry run mypy --implicit-reexport --show-error-codes kharon
 
 
 .PHONY: check-mypy-error-count
-check-mypy-error-count: MYPY_INFO = $(shell expr `poetry run mypy shared_science | grep ": error" | wc -l`)
+check-mypy-error-count: MYPY_INFO = $(shell expr `poetry run mypy kharon | grep ": error" | wc -l`)
 check-mypy-error-count: MYPY_ERROR_COUNT = 0
 
 check-mypy-error-count:
@@ -25,7 +25,7 @@ check-mypy-error-count:
 		false; \
 	fi
 
-SRC_FOLDER    ?= ./shared_science
+SRC_FOLDER    ?= ./kharon
 REPORT_FOLDER ?= ./reports
 
 ./reports/security/bandit/:

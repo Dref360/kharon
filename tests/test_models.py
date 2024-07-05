@@ -3,11 +3,11 @@ from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine, select
 from sqlmodel.pool import StaticPool
 
-from shared_science.auth import create_api_key, disable_api_key
-from shared_science.dependencies import get_current_user
-from shared_science.models import User, Cluster, Job, APIKey
-from shared_science.models.clusters import ClusterStatus
-from shared_science.models.jobs import JobDescription
+from kharon.auth import create_api_key, disable_api_key
+from kharon.dependencies import get_current_user
+from kharon.models import User, Cluster, Job, APIKey
+from kharon.models.clusters import ClusterStatus
+from kharon.models.jobs import JobDescription
 
 
 @pytest.fixture(name="session")

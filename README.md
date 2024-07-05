@@ -2,7 +2,7 @@
    <img src="docs/assets/logo.png", width="40%">
 </p>
 
-# Shared Science
+# Kharon
 
 ⚠️ Under Construction! ⚠️
 
@@ -14,7 +14,7 @@
 
 This project solves the problem of sharing applications with other people around the world. This way, you can safely create dashboards with private data and share it with specific people without setting up the AuthN/Z yourself.
 
-Shared Science is a FastAPI-based reverse proxy server with Google Authentication. It allows you to secure your applications by requiring users to authenticate via their Google accounts before accessing web servers using an SSH tunnel.
+Kharon is a FastAPI-based reverse proxy server with Google Authentication. It allows you to secure your applications by requiring users to authenticate via their Google accounts before accessing web servers using an SSH tunnel.
 
 <p align="center">
    <img src="docs/assets/diagram.png" width="40%">
@@ -26,7 +26,7 @@ Shared Science is a FastAPI-based reverse proxy server with Google Authenticatio
 - [x] **Authorization:** Authorize people to access jobs (using [Casbin](https://dev.to/teresafds/authorization-on-fastapi-with-casbin-41og) would be a great future implementation for fine-grained AuthZ).
 - [x] **FastAPI:** Utilizes the FastAPI framework for efficient and fast development.
 - [x] **API Key Management:** Users can create/delete keys.
-- [ ] **SharedScienceDaemon (SSD):** Small daemon that we can [tunnel](https://pypi.org/project/sshtunnel/) into with SSH.
+- [ ] **KharonDaemon (SSD):** Small daemon that we can [tunnel](https://pypi.org/project/sshtunnel/) into with SSH.
   - [x] **SSH Server**
   - [ ] **Automatic registration to host**
   - [x] **Reverse Proxy:** Directs incoming requests to the appropriate backend services.
@@ -67,7 +67,7 @@ A user goes on the website, authenticates themselves and can see jobs linked to 
 1. Start the FastAPI server:
 
    ```bash
-   poetry run fastapi dev shared_science/app.py
+   poetry run fastapi dev kharon/app.py
    ```
 
 2. Start the frontend
@@ -92,4 +92,4 @@ This project is licensed under the Apache V2 License - see the [LICENSE](LICENSE
 - FastAPI: https://fastapi.tiangolo.com/
 - SQLModel: https://sqlmodel.tiangolo.com/
 
-Thank you for using Shared Science!
+Thank you for using Kharon!

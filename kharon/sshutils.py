@@ -6,7 +6,7 @@ from typing import Tuple
 from platformdirs import user_cache_dir
 from sshtunnel import SSHTunnelForwarder
 
-from shared_science.auth import hash_token
+from kharon.auth import hash_token
 
 SSH_USERNAME = "shared"
 

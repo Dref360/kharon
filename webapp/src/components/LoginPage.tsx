@@ -41,7 +41,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     >
       <Paper elevation={3} sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography variant="h4" gutterBottom>
-          Login to Shared Science
+          Login to Kharon
         </Typography>
         <GoogleSignIn onSuccess={handleLoginSuccess} />
       </Paper>

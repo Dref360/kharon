@@ -7,10 +7,10 @@ from google.oauth2.id_token import verify_oauth2_token
 from pydantic import BaseModel
 from sqlmodel import Session
 
-from shared_science import dbutils
-from shared_science.auth import GOOGLE_CLIENT_ID, create_access_token
-from shared_science.dependencies import get_session
-from shared_science.models import User
+from kharon import dbutils
+from kharon.auth import GOOGLE_CLIENT_ID, create_access_token
+from kharon.dependencies import get_session
+from kharon.models import User
 
 # Google OAuth2 configuration
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/auth"

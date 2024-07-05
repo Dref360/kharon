@@ -1,4 +1,4 @@
-from shared_science.models.model_utils import ResourceSQLModel
+from kharon.models.model_utils import ResourceSQLModel
 
 
 def has_access_to_resource(email, resource: ResourceSQLModel):

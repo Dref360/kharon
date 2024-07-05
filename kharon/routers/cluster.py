@@ -8,13 +8,13 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 from starlette.requests import Request
 
-from shared_science import sshutils
-from shared_science.auth import oauth2_scheme
-from shared_science.dependencies import get_cluster
-from shared_science.dependencies import get_session, get_current_user
-from shared_science.models import User, Cluster
-from shared_science.models.clusters import ClusterStatus
-from shared_science.typing import assert_not_none
+from kharon import sshutils
+from kharon.auth import oauth2_scheme
+from kharon.dependencies import get_cluster
+from kharon.dependencies import get_session, get_current_user
+from kharon.models import User, Cluster
+from kharon.models.clusters import ClusterStatus
+from kharon.typing import assert_not_none
 
 api = APIRouter()
 
@@ -24,7 +24,7 @@ class ConnectionResponse(BaseModel):
     public_key: str
 
 
-@api.get("/connect", summary="Connect a cluster to SharedScience.")
+@api.get("/connect", summary="Connect a cluster to Kharon.")
 def get_connect_daemon(
     request: Request,
     name: Optional[str] = None,  # TODO Probably doesn't need this

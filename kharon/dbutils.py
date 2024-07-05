@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 
-from shared_science.models import User
+from kharon.models import User
 
 
 def user_exists(email: str, session: Session):

@@ -1,4 +1,4 @@
-# Shared Science Webapp
+# Kharon Webapp
 
 For now this only creates the Google Auth flow.
 

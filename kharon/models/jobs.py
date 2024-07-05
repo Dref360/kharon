@@ -3,7 +3,7 @@ from typing import Optional, List
 
 from sqlmodel import Field, SQLModel, Column
 
-from shared_science.models.model_utils import pydantic_column_type  # type: ignore
+from kharon.models.model_utils import pydantic_column_type  # type: ignore
 
 
 # NOTE: Could reuse another library for this state management.

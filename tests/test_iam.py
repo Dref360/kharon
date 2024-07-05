@@ -2,9 +2,9 @@ import pytest
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 
-from shared_science.iam import has_access_to_resource
-from shared_science.models import User, Cluster
-from shared_science.models.clusters import ClusterStatus
+from kharon.iam import has_access_to_resource
+from kharon.models import User, Cluster
+from kharon.models.clusters import ClusterStatus
 
 
 @pytest.fixture(name="session")
