@@ -1,8 +1,7 @@
 <p align="center">
-   <img src="docs/assets/logo.png", width="40%">
+   <img src="docs/assets/logo.svg", width="35%">
 </p>
 
-# Kharon
 
 ⚠️ Under Construction! ⚠️
 
@@ -17,7 +16,7 @@ This project solves the problem of sharing applications with other people around
 Kharon is a FastAPI-based reverse proxy server with Google Authentication. It allows you to secure your applications by requiring users to authenticate via their Google accounts before accessing web servers using an SSH tunnel.
 
 <p align="center">
-   <img src="docs/assets/diagram.png" width="40%">
+   <img src="docs/assets/diagram.png" width="50%">
 </p>
 
 ## Features
