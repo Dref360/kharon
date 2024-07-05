@@ -36,3 +36,7 @@ def test_has_read_access(session):
     one_cluster.add_user(second_user.email, session)
     assert has_access_to_resource(one_user.email, one_cluster)
     assert has_access_to_resource(second_user.email, one_cluster)
+
+    one_cluster.add_user("new_email@lol.com", session)
+    assert has_access_to_resource(one_user.email, one_cluster)
+    assert has_access_to_resource(second_user.email, one_cluster)

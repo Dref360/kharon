@@ -1,3 +1,5 @@
+import re
+
 from kharon.models.model_utils import ResourceSQLModel
 
 
@@ -7,4 +9,4 @@ def has_access_to_resource(email, resource: ResourceSQLModel):
     Notes:
         Using something like casbin could be beneficial here.
     """
-    return email in resource.user_read_allow.split(",")
+    return re.search(rf"(^|,){email}(,|$)", resource.user_read_allow) is not None
