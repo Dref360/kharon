@@ -3,6 +3,7 @@ import os.path
 import time
 from dataclasses import dataclass, asdict
 from pathlib import Path
+from pprint import pprint
 from typing import Optional
 
 import httpx
@@ -85,6 +86,8 @@ def main(
     if (local_cfg := maybe_load_config(cache)) is not None:
         cluster_name = local_cfg.name
     config = connect_to_daemon(kharon_server, api_key=api_key, cluster_name=cluster_name)
+    print("Config")
+    pprint(config)
     save_config(config, cache)
     append_ssh_key(config.public_key)
 
