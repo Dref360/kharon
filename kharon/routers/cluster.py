@@ -70,6 +70,7 @@ class ClusterView(BaseModel):
     online: bool
     url: str
     description: str = ""
+    users: List[str]
 
 
 class ClusterResponse(BaseModel):
@@ -87,8 +88,9 @@ def list_clusters(
             ClusterView(
                 name=c.name,
                 online=c.status == ClusterStatus.healthy,
-                url=f"/clusters/{c.name}",
+                url=f"/clusters/{c.name}/",
                 description="Http Server",
+                users=c.user_read_allow.split(","),
             )
             for c in clusters
         ]
@@ -116,6 +118,7 @@ async def reverse_proxy(
     key, _ = sshutils.get_ssh_keys(cluster.name)
     ssh_tunnel = sshutils.get_ssh_tunnel(ip=cluster.host, port=2222, private_key=key)
     # Forward the request to the target server
+    print("Proxy request", forward_path)
     async with httpx.AsyncClient() as client:
         try:
             response = await client.request(

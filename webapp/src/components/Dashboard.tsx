@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Grid, Typography } from "@mui/material";
 import ClusterCard from "./ClusterCard";
+import { useAuth } from "../helpers/AuthContext";
 
 interface Cluster {
   name: string;
   online: boolean;
   url: string;
   description: string;
+  users: string[];
 }
 
 interface ClustersResponse {
@@ -25,11 +27,27 @@ const fetchClusters = async (authToken: string) => {
     });
 };
 
+const Dashboard: React.FC = () => {
+  const { authToken } = useAuth();
+  if (!authToken) {
+    return (window.location.href = "/login");
+  }
+
+  return (
+    <div>
+      <Typography variant="h4" gutterBottom>
+        Dashboard
+      </Typography>
+      <Clusters authToken={authToken} />
+    </div>
+  );
+};
+
 interface DashboardProps {
   authToken: string;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ authToken }: DashboardProps) => {
+const Clusters: React.FC<DashboardProps> = ({ authToken }: DashboardProps) => {
   const [clusters, setClusters] = useState<Cluster[]>([]);
 
   useEffect(() => {

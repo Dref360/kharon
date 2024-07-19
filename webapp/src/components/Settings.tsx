@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Button, TextField, Box, Typography } from "@mui/material";
+import { useAuth } from "../helpers/AuthContext";
+import { Navigate } from "react-router-dom";
 
 interface GenerateApiKeyProps {
   authToken: string;
@@ -47,4 +49,20 @@ const GenerateApiKey: React.FC<GenerateApiKeyProps> = ({ authToken }) => {
   );
 };
 
-export default GenerateApiKey;
+const SettingPage = () => {
+  const { authToken } = useAuth();
+  if (!authToken) {
+    return (window.location.href = "/login");
+  }
+
+  return (
+    <div>
+      <Typography variant="h4" gutterBottom>
+        Dashboard
+      </Typography>
+      <GenerateApiKey authToken={authToken} />
+    </div>
+  );
+};
+
+export default SettingPage;
