@@ -16,9 +16,10 @@ HTTP_PORT = 8080
 
 def local_service_healthy():
     try:
-        httpx.get(f"http://localhost:{HTTP_PORT}")
+        httpx.get(f"http://host.docker.internal:{HTTP_PORT}")
         return True
-    except httpx.ConnectError:
+    except httpx.ConnectError as e:
+        print(e)
         return False
 
 
@@ -26,7 +27,8 @@ def kharon_server_healthy(kharon_server):
     try:
         httpx.get(kharon_server)
         return True
-    except httpx.ConnectError:
+    except httpx.ConnectError as e:
+        print(e)
         return False
 
 
@@ -74,7 +76,7 @@ def main(
     if not local_service_healthy():
         raise ValueError(
             f"Unable to connect to local application! "
-            f"Please verify that `localhost:{HTTP_PORT}` is accessible."
+            f"Please verify that `http://localhost:{HTTP_PORT}` is accessible."
         )
     if not kharon_server_healthy(kharon_server):
         raise ValueError(

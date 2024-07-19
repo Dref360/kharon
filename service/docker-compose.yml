@@ -3,24 +3,20 @@ services:
     image: shared-science/ssdaemon
     build: .
     container_name: openssh-server
-    networks:
-      static-network:
-        ipv4_address: 172.20.128.2
     hostname: openssh-server #optional
     environment:
       - DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel
+      - KHARON_SERVER=http://host.docker.internal:8000
+      - KHARON_API_KEY=ss-i1j30fiTipQRaYqIDerFAdZ2YxtUwN6O4tZ3tah2kyk
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
       - PASSWORD_ACCESS=false #optional
       - USER_NAME=shared #optional
+    volumes:
+      - /cache
     ports:
       - 2222:2222
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
-networks:
-  static-network:
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16

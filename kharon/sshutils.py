@@ -38,7 +38,7 @@ def get_ssh_tunnel(ip, port, private_key) -> SSHTunnelForwarder:
             ssh_pkey=private_key,
             ssh_private_key_password="",
             ssh_username=SSH_USERNAME,
-            remote_bind_address=("0.0.0.0", 8080),
+            remote_bind_address=("host.docker.internal", 8080),
         )
     )
     server = SSHTunnelForwarder(
@@ -47,7 +47,7 @@ def get_ssh_tunnel(ip, port, private_key) -> SSHTunnelForwarder:
         ssh_private_key_password="",
         ssh_username=SSH_USERNAME,
         host_pkey_directories=cachedir,
-        remote_bind_address=("0.0.0.0", 8080),
+        remote_bind_address=("host.docker.internal", 8080),
     )
 
     server.start()
