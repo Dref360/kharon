@@ -14,9 +14,9 @@ pjoin = os.path.join
 HTTP_PORT = 8080
 
 
-def local_service_healthy():
+def local_service_healthy(remote_host):
     try:
-        httpx.get(f"http://host.docker.internal:{HTTP_PORT}")
+        httpx.get(f"http://{remote_host}:{HTTP_PORT}")
         return True
     except httpx.ConnectError as e:
         print(e)
@@ -53,10 +53,12 @@ def save_config(config: ClusterConfig, cache):
     json.dump(asdict(config), open(cache_path, "w"))
 
 
-def connect_to_daemon(kharon_server: str, api_key: str, cluster_name: Optional[str]):
+def connect_to_daemon(
+    kharon_server: str, remote_host: str, api_key: str, cluster_name: Optional[str]
+):
     return ClusterConfig(
         **httpx.get(
-            f"{kharon_server}/clusters/connect?name={cluster_name or ''}",
+            f"{kharon_server}/clusters/connect?name={cluster_name or ''}&remote_host={remote_host}",
             headers={"Authorization": f"Bearer {api_key}"},
         ).json()
     )
@@ -72,11 +74,12 @@ def main(
     kharon_server: Annotated[str, typer.Argument(envvar="KHARON_SERVER")],
     api_key: Annotated[str, typer.Argument(envvar="KHARON_API_KEY")],
     cache: Annotated[str, typer.Argument(envvar="KHARON_CACHE")] = "/cache",
+    remote_host: Annotated[str, typer.Argument(envvar="KHARON_REMOTE_HOST")] = "localhost",
 ):
-    if not local_service_healthy():
+    if not local_service_healthy(remote_host):
         raise ValueError(
             f"Unable to connect to local application! "
-            f"Please verify that `http://localhost:{HTTP_PORT}` is accessible."
+            f"Please verify that `http://{remote_host}:{HTTP_PORT}` is accessible."
         )
     if not kharon_server_healthy(kharon_server):
         raise ValueError(
@@ -87,7 +90,9 @@ def main(
     cluster_name = None
     if (local_cfg := maybe_load_config(cache)) is not None:
         cluster_name = local_cfg.name
-    config = connect_to_daemon(kharon_server, api_key=api_key, cluster_name=cluster_name)
+    config = connect_to_daemon(
+        kharon_server, remote_host=remote_host, api_key=api_key, cluster_name=cluster_name
+    )
     print("Config")
     pprint(config)
     save_config(config, cache)
@@ -98,7 +103,7 @@ def main(
         httpx.post(
             f"{kharon_server}/clusters/health_check/{cluster_name}",
             json={
-                "local_service_alive": local_service_healthy(),
+                "local_service_alive": local_service_healthy(remote_host),
                 "ssh_service_alive": True,  # TODO Check ssh service
             },
             headers={"Authorization": f"Bearer {api_key}"},

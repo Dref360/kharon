@@ -5,6 +5,9 @@ from sqlmodel import Session, select
 from kharon.auth import get_user_by_api_key, get_user_from_access_token, oauth2_scheme
 from kharon.iam import has_access_to_resource
 from kharon.models import User, Cluster
+import logging
+
+log = logging.getLogger()
 
 # Setup Database
 sqlite_file_name = "database.db"

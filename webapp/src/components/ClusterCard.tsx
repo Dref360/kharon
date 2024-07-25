@@ -1,20 +1,22 @@
-import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Chip,
-  Button,
-  Modal,
-  Box,
-  Input,
-  TextField,
-  Grid,
-} from "@mui/material";
+import AddBoxIcon from "@mui/icons-material/AddBox";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { useAuth } from "../helpers/AuthContext";
-import OpenInBrowserIcon from "@mui/icons-material/OpenInBrowser";
-import { useNavigate } from "react-router-dom";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Chip,
+  Grid,
+  IconButton,
+  Modal,
+  TextField,
+  Typography,
+} from "@mui/material";
+import React, { useState } from "react";
 
 const modalStyle = {
   position: "absolute" as "absolute",
@@ -28,13 +30,16 @@ const modalStyle = {
   p: 4,
 };
 
-interface AddUserProps {
+interface UserManagementProps {
   name: string;
   users: string[];
 }
 
-const AddUserModal: React.FC<AddUserProps> = ({ name, users }) => {
-  const { authToken } = useAuth();
+const UserManagementModal: React.FC<UserManagementProps> = ({
+  name,
+  users,
+}) => {
+  const [usersList, setUsersList] = useState(users);
   const [newUser, setNewUser] = useState<string | null>(null);
 
   // Modal control
@@ -42,19 +47,39 @@ const AddUserModal: React.FC<AddUserProps> = ({ name, users }) => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const addNewUser = async () => {
-    return await fetch(`/clusters/add_user/${name}?email=${newUser}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
+  const handleAddUser = async () => {
+    if (!newUser) return; // Prevent adding a new user when the input is empty.
+
+    try {
+      await fetch(`/clusters/add_user/${name}?email=${newUser}`, {
+        credentials: "include",
+        method: "POST",
+      });
+      setUsersList(usersList.concat([newUser]));
+    } catch (error) {
+      console.error("Error adding new user:", error);
+    } finally {
+      // Reset input field after successful operation, if required.
+      setNewUser(null);
+    }
+  };
+
+  const handleRemoveUser = async (userEmail: string) => {
+    try {
+      await fetch(`/clusters/remove_user/${name}?email=${userEmail}`, {
+        credentials: "include",
+        method: "DELETE",
+      });
+      setUsersList(usersList.filter((user) => user !== userEmail));
+    } catch (error) {
+      console.error("Error adding new user:", error);
+    }
   };
 
   return (
     <div>
       <Button onClick={handleOpen}>
-        <PersonAddIcon />
+        Edit Access <PersonAddIcon sx={{ m: "5px" }} />
       </Button>
       <Modal
         open={open}
@@ -63,7 +88,7 @@ const AddUserModal: React.FC<AddUserProps> = ({ name, users }) => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={modalStyle}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
+          <Typography id="modal-modal-title" variant="h5" component="h2">
             User Management
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
@@ -77,18 +102,31 @@ const AddUserModal: React.FC<AddUserProps> = ({ name, users }) => {
                 />
               </Grid>
               <Grid item>
-                <Button onClick={addNewUser} disabled={!newUser}>
-                  Submit
-                </Button>
+                <IconButton onClick={handleAddUser} disabled={!newUser}>
+                  <AddBoxIcon />
+                </IconButton>
               </Grid>
             </Grid>
-            {users.length ? (
-              users.map((u) => {
-                return <Typography>{u}</Typography>;
-              })
-            ) : (
-              <Typography>No user allowed</Typography>
-            )}
+            {/* Users List with Minus Buttons */}
+            <Typography variant="h6">Allowed users</Typography>
+            <Grid container spacing={2} alignItems="center">
+              {usersList.map((user) => (
+                <Grid
+                  item
+                  key={user}
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <Typography>{user}</Typography>
+                  <IconButton
+                    onClick={() => handleRemoveUser(user)}
+                    color="error"
+                  >
+                    {/* Minus Button for removing user */}
+                    <RemoveCircleIcon />
+                  </IconButton>
+                </Grid>
+              ))}
+            </Grid>
           </Typography>
         </Box>
       </Modal>
@@ -111,52 +149,39 @@ const ClusterCard: React.FC<ClusterProps> = ({
   description,
   users,
 }) => {
-  const navigate = useNavigate();
   return (
-    <Card sx={{ minWidth: 275, m: 2 }}>
-      <CardContent>
-        <Grid container justifyContent={"space-around"}>
-          <Grid item>
-            <Typography variant="h5" component="div">
-              {name}
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Button
-              onClick={() => navigate(`/proxy/${name}`)}
-              sx={{ margin: 0 }}
-            >
-              <OpenInBrowserIcon />
-            </Button>
-          </Grid>
-        </Grid>
-        <Chip
-          label={online ? "Online" : "Offline"}
-          color={online ? "success" : "error"}
-          size="small"
-          sx={{ mt: 1, mb: 1 }}
+    <Card sx={{ minWidth: 275, maxWidth: 275 }}>
+      {/*TODO Point to correct link. */}
+      <CardActionArea
+        onClick={() => {
+          let protocol = window.location.protocol;
+          let port = window.location.port;
+          window.location.href = `${protocol}//${name}.${window.location.hostname}:${port}`;
+        }}
+      >
+        <CardMedia
+          sx={{ height: 140 }}
+          image="/assets/web-development.png"
+          title="Webstuff"
         />
-        <Grid container spacing={2}>
-          <Grid
-            item
-            xs
-            container
-            direction="row"
-            justifyContent="space-around"
-            alignItems="center"
-            spacing={2}
-          >
-            <Grid item>
-              <Typography variant="body2" color="text.secondary">
-                {description}
-              </Typography>
-            </Grid>
-            <Grid item>
-              <AddUserModal name={name} users={users} />
-            </Grid>
-          </Grid>
-        </Grid>
-      </CardContent>
+        <CardContent sx={{ display: "block" }}>
+          <Typography variant="h5" component="div">
+            {name}
+          </Typography>
+          <Chip
+            label={online ? "Online" : "Offline"}
+            color={online ? "success" : "error"}
+            size="small"
+            sx={{ mt: 1, mb: 1 }}
+          />
+          <Typography variant="body2" color="text.secondary">
+            {description}
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+      <CardActions>
+        <UserManagementModal name={name} users={users} />
+      </CardActions>
     </Card>
   );
 };

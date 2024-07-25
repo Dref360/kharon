@@ -1,50 +1,40 @@
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useEffect,
-  ReactNode,
-  PropsWithChildren,
-} from "react";
-
-interface AuthContextType {
-  authToken: string | null;
-  setAuthToken: (token: string | null) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<PropsWithChildren> = ({
-  children,
-}: PropsWithChildren) => {
-  const [authToken, setAuthToken] = useState<string | null>(
-    localStorage.getItem("authToken")
-  );
-
-  useEffect(() => {
-    if (authToken) {
-      localStorage.setItem("authToken", authToken);
-    } else {
-      localStorage.removeItem("authToken");
-    }
-  }, [authToken]);
-
-  const logout = () => {
-    setAuthToken(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ authToken, setAuthToken, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+import { useEffect, useState } from "react";
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const checkAuthStatus = async () => {
+    setIsLoading(true)
+    return await fetch("/app/me", { credentials: "include" })
+      .then((res) => setIsLoggedIn(res.ok))
+      .catch(() => setIsLoggedIn(false));
+  };
+
+  const logout = async () => {
+    try {
+      const response = await fetch(`/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+      setIsLoggedIn(false)
+      return await response.json();
+    } catch (error) {
+      console.error('Error during logout:', error);
+      throw error;
+    }
   }
-  return context;
+
+  useEffect(() => {
+    async function fetchAuthStatus() {
+      await checkAuthStatus();
+      setIsLoading(false);
+    }
+    fetchAuthStatus();
+  }, []);
+
+  return { isLoggedIn, isLoading, logout };
 };

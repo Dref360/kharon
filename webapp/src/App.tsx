@@ -25,17 +25,19 @@ import Home from "./components/Home";
 import Dashboard from "./components/Dashboard";
 import Settings from "./components/Settings";
 import LoginPage from "./components/LoginPage";
-import { AuthProvider, useAuth } from "./helpers/AuthContext";
 import { ReactComponent as KharonIcon } from "./assets/logo.svg";
 import { useNavigate, Navigate } from "react-router-dom";
-import ClusterFrame from "./components/ProxyPage";
+import ProxyRouting from "./components/ProxyPage";
+import NotFoundPage from "./components/404";
+import { CookiesProvider, useCookies } from "react-cookie";
+import { useAuth } from "./helpers/AuthContext";
 
 const drawerWidth = 240;
 
 const AppContent: React.FC = () => {
   const navigate = useNavigate();
-  const { authToken, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const { isLoggedIn, isLoading, logout } = useAuth();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -58,8 +60,7 @@ const AppContent: React.FC = () => {
       </List>
     </div>
   );
-
-  if (!authToken) {
+  if (!isLoggedIn) {
     return <LoginPage />;
   }
 
@@ -85,7 +86,7 @@ const AppContent: React.FC = () => {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Kharon
           </Typography>
-          <IconButton color="inherit" onClick={logout}>
+          <IconButton color="inherit" onClick={() => logout()}>
             Logout
           </IconButton>
         </Toolbar>
@@ -135,11 +136,12 @@ const AppContent: React.FC = () => {
       >
         <Toolbar />
         <Routes>
-          <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/proxy/:cluster_name" element={<ClusterFrame />} />
+          {/*TODO Make 404 page */}
+          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="*" element={<ProxyRouting />} />
         </Routes>
       </Box>
     </Box>
@@ -150,9 +152,9 @@ const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AuthProvider>
+      <CookiesProvider defaultSetOptions={{ path: "/" }}>
         <AppContent />
-      </AuthProvider>
+      </CookiesProvider>
     </ThemeProvider>
   );
 };

@@ -1,15 +1,14 @@
 import React from "react";
 import { Box, Typography, Paper } from "@mui/material";
 import GoogleSignIn from "./GoogleSignIn";
-import { useAuth } from "../helpers/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setAuthToken } = useAuth();
   const handleLoginSuccess = async (idToken: string) => {
     try {
       const response = await fetch("/auth/google", {
+        credentials: 'include', // This is important
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -18,10 +17,7 @@ const LoginPage: React.FC = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        // Assuming the server returns a JWT or session token
-        setAuthToken(data.access_token);
-        navigate("/");
+        navigate("/dashboard");
       } else {
         console.error("Authentication failed");
       }

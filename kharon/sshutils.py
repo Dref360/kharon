@@ -29,7 +29,7 @@ def get_ssh_keys(name: str) -> Tuple[str, str]:
     return private_key_file, public_key_file
 
 
-def get_ssh_tunnel(ip, port, private_key) -> SSHTunnelForwarder:
+def get_ssh_tunnel(ip, port, remote_host, private_key) -> SSHTunnelForwarder:
     """Start an SSH Tunnel"""
     cachedir = pjoin(user_cache_dir("shared-science", "shared-science"), "sshkey")
     print(
@@ -38,7 +38,8 @@ def get_ssh_tunnel(ip, port, private_key) -> SSHTunnelForwarder:
             ssh_pkey=private_key,
             ssh_private_key_password="",
             ssh_username=SSH_USERNAME,
-            remote_bind_address=("host.docker.internal", 8080),
+            host_pkey_directories=cachedir,
+            remote_bind_address=(remote_host, 8080),
         )
     )
     server = SSHTunnelForwarder(
@@ -47,7 +48,7 @@ def get_ssh_tunnel(ip, port, private_key) -> SSHTunnelForwarder:
         ssh_private_key_password="",
         ssh_username=SSH_USERNAME,
         host_pkey_directories=cachedir,
-        remote_bind_address=("host.docker.internal", 8080),
+        remote_bind_address=(remote_host, 8080),
     )
 
     server.start()

@@ -20,6 +20,7 @@ class Cluster(ResourceSQLModel, table=True):  # type: ignore
     creator: Optional[int] = Field(default=None, foreign_key="user.id")
     name: str
     host: str
+    remote_host: str
     status: ClusterStatus
     # Unused for now
     type: ClusterType = ClusterType.docker

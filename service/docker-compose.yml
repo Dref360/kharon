@@ -7,14 +7,15 @@ services:
     environment:
       - DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel
       - KHARON_SERVER=http://host.docker.internal:8000
-      - KHARON_API_KEY=ss-i1j30fiTipQRaYqIDerFAdZ2YxtUwN6O4tZ3tah2kyk
+      - KHARON_API_KEY=ss-5fSsI5dYIRbrwKMkED-RQ9cAJQHamU9vhy8PunGnjbI
+      - KHARON_REMOTE_HOST=host.docker.internal
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
       - PASSWORD_ACCESS=false #optional
       - USER_NAME=shared #optional
     volumes:
-      - /cache
+      - .cache:/cache
     ports:
       - 2222:2222
     restart: unless-stopped

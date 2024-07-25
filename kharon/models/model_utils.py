@@ -30,6 +30,13 @@ class ResourceSQLModel(SQLModel):
         session.commit()
         session.refresh(self)
 
+    def remove_user(self, email: str, session: Session):
+        # SQLLite doesn't support array type so that's a bummer
+        self.user_read_allow = ",".join(set(self.user_read_allow.split(",")) - {email})
+        session.add(self)
+        session.commit()
+        session.refresh(self)
+
 
 """
 Taken from:

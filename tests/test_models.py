@@ -47,7 +47,7 @@ def test_api_token(session):
     session.add(one_user)
     session.commit()
 
-    api_key = create_api_key(one_user.id, session)
+    api_key = create_api_key(one_user.id, key_name='key1', session=session)
     assert api_key.startswith('ss-')
     keys = session.exec(select(APIKey).where(APIKey.user_id == one_user.id)).all()
     assert len(keys) == 1
@@ -58,7 +58,7 @@ def test_api_token(session):
     with pytest.raises(HTTPException, match='404'):
         get_current_user(token='ss-potato', session=session)
 
-    disable_api_key(api_key, session)
+    disable_api_key(one_user.id, key_name='key1', session=session)
     updated_key = session.exec(select(APIKey).where(APIKey.user_id == one_user.id)).first()
     assert updated_key is not None
     assert not updated_key.is_active

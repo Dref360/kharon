@@ -31,6 +31,9 @@ class ConnectionResponse(BaseModel):
 def get_connect_daemon(
     request: Request,
     name: Optional[str] = None,  # TODO Probably doesn't need this
+    remote_host: str = Query(
+        ...,
+    ),
     user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
     token: str = Depends(oauth2_scheme),
@@ -50,6 +53,7 @@ def get_connect_daemon(
             creator=user.id,
             name=cluster_name,
             host=client_host,
+            remote_host=remote_host,
             status=ClusterStatus.healthy,
             user_read_allow=user.email,
         )
@@ -62,6 +66,12 @@ def get_connect_daemon(
         ).first()
         if check_exist is None:
             raise HTTPException(404, "Cluster not found")
+        else:
+            # Update host and remote
+            check_exist.host = client_host
+            check_exist.remote_host = remote_host
+            session.add(check_exist)
+            session.commit()
     return ConnectionResponse(name=cluster_name, public_key=open(ssh_public_key, "r").read())
 
 
@@ -107,6 +117,16 @@ def add_user_to_cluster(
     return "OK"
 
 
+@api.delete("/remove_user/{cluster_name}", summary="Remove user to a cluster")
+def add_user_to_cluster(
+    email: str = Query(...),
+    cluster: Cluster = Depends(get_cluster),
+    session: Session = Depends(get_session),
+):
+    cluster.remove_user(email, session)
+    return "OK"
+
+
 @api.api_route(
     "/{cluster_name}/{forward_path:path}",
     methods=["GET", "POST", "PUT", "DELETE"],
@@ -116,7 +136,9 @@ async def reverse_proxy(
     forward_path: str, request: Request, cluster: Cluster = Depends(get_cluster)
 ):
     key, _ = sshutils.get_ssh_keys(cluster.name)
-    ssh_tunnel = sshutils.get_ssh_tunnel(ip=cluster.host, port=2222, private_key=key)
+    ssh_tunnel = sshutils.get_ssh_tunnel(
+        ip=cluster.host, port=2222, remote_host=cluster.remote_host, private_key=key
+    )
     # Forward the request to the target server
     print("Proxy request", forward_path)
     async with httpx.AsyncClient() as client:
@@ -127,6 +149,7 @@ async def reverse_proxy(
                 headers=request.headers,
                 content=await request.body(),
             )
+            print("Response", response.status_code)
             return Response(
                 content=response.content,
                 status_code=response.status_code,
