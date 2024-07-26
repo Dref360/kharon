@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { make_api_call } from "../api/api";
 
 interface GenerateApiKeyProps {
   authToken: string;
@@ -28,11 +29,11 @@ const GenerateApiKey: React.FC<GenerateApiKeyProps> = ({ authToken }) => {
   const [apiKeyName, setAPIKeyName] = useState("");
 
   const handleGenerateKey = async () => {
-    return await fetch(`/app/api-key?key_name=${apiKeyName}`, {
-      credentials: "include",
+    return await make_api_call({
+      path: `/app/api-key?key_name=${apiKeyName}`,
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${authToken}`,
+      onSuccess: (res) => {
+        return res;
       },
     })
       .then((res) => res.json())
@@ -84,11 +85,10 @@ const ListApiKeys: React.FC<GenerateApiKeyProps> = ({ authToken }) => {
   const [keys, setKeys] = useState<APIKeyViewModel[]>([]);
   useEffect(() => {
     const fn = async () => {
-      return await fetch(`/app/api-key`, {
-        credentials: "include",
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
+      return await make_api_call({
+        path: `/app/api-key`,
+        onSuccess: (res) => {
+          return res;
         },
       })
         .then((res) => res.json())
@@ -100,18 +100,16 @@ const ListApiKeys: React.FC<GenerateApiKeyProps> = ({ authToken }) => {
   }, [authToken]);
 
   const revokeKey = async (key_name: string) => {
-    try {
-      await fetch(`/app/api-key?key_name=${key_name}`, {
-        credentials: "include",
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      setKeys(keys.filter((k) => k.key_name !== key_name));
-    } catch (error) {
-      console.error("Error adding new user:", error);
-    }
+    await make_api_call({
+      path: `/app/api-key?key_name=${key_name}`,
+      method: "DELETE",
+      onSuccess: (res) => {
+        setKeys(keys.filter((k) => k.key_name !== key_name));
+      },
+      onError: (err) => {
+        console.error("Error adding new user:", err);
+      },
+    });
   };
 
   return (

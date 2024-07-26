@@ -17,6 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
+import { make_api_call } from "../api/api";
 
 const modalStyle = {
   position: "absolute" as "absolute",
@@ -50,30 +51,31 @@ const UserManagementModal: React.FC<UserManagementProps> = ({
   const handleAddUser = async () => {
     if (!newUser) return; // Prevent adding a new user when the input is empty.
 
-    try {
-      await fetch(`/clusters/add_user/${name}?email=${newUser}`, {
-        credentials: "include",
-        method: "POST",
-      });
-      setUsersList(usersList.concat([newUser]));
-    } catch (error) {
-      console.error("Error adding new user:", error);
-    } finally {
-      // Reset input field after successful operation, if required.
-      setNewUser(null);
-    }
+    await make_api_call({
+      path: `/clusters/add_user/${name}?email=${newUser}`,
+      method: "POST",
+      onSuccess: (res) => {
+        setUsersList(usersList.concat([newUser]));
+      },
+      onError: (err) => {
+        console.error("Error adding new user:", err);
+      },
+    });
+    setNewUser(null);
   };
 
   const handleRemoveUser = async (userEmail: string) => {
-    try {
-      await fetch(`/clusters/remove_user/${name}?email=${userEmail}`, {
-        credentials: "include",
-        method: "DELETE",
-      });
-      setUsersList(usersList.filter((user) => user !== userEmail));
-    } catch (error) {
-      console.error("Error adding new user:", error);
-    }
+    await make_api_call({
+      path: `/clusters/remove_user/${name}?email=${userEmail}`,
+      method: "DELETE",
+      onSuccess: (res) => {
+        setUsersList(usersList.filter((user) => user !== userEmail));
+      },
+      onError: (err) => {
+        console.error("Error adding new user:", err);
+      },
+    });
+    setNewUser(null);
   };
 
   return (

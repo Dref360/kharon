@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
 import { Grid, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { make_api_call } from "../api/api";
 import ClusterCard from "./ClusterCard";
 
 interface Cluster {
@@ -14,17 +15,13 @@ interface ClustersResponse {
   clusters: Cluster[];
 }
 
-const fetchClusters = async (authToken: string) => {
-  return await fetch("/clusters/list", {
-    credentials: "include",
-    headers: {
-      Authorization: `Bearer ${authToken}`,
+const fetchClusters = async () => {
+  return await make_api_call({
+    path: "/clusters/list",
+    onSuccess: (res) => {
+      return res.json() as Promise<ClustersResponse>;
     },
-  })
-    .then((res) => res.json())
-    .then((res: ClustersResponse) => {
-      return res.clusters;
-    });
+  });
 };
 
 const Dashboard: React.FC = () => {
@@ -44,7 +41,7 @@ const Clusters: React.FC<DashboardProps> = ({ authToken }: DashboardProps) => {
 
   useEffect(() => {
     const fn = async () => {
-      setClusters(await fetchClusters(authToken));
+      setClusters((await fetchClusters()).clusters);
     };
     fn();
   }, [authToken]);

@@ -1,29 +1,30 @@
+import { Box, Paper, Typography } from "@mui/material";
 import React from "react";
-import { Box, Typography, Paper } from "@mui/material";
 import GoogleSignIn from "./GoogleSignIn";
-import { useNavigate } from "react-router-dom";
+import { make_api_call } from "../api/api";
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
   const handleLoginSuccess = async (idToken: string) => {
-    try {
-      const response = await fetch("/auth/google", {
-        credentials: 'include', // This is important
-        method: "POST",
+    await make_api_call({
+      path: "/auth/google",
+      method: "POST",
+      options: {
+        body: JSON.stringify({ idToken }),
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ idToken }),
-      });
-
-      if (response.ok) {
-        navigate("/dashboard");
-      } else {
-        console.error("Authentication failed");
-      }
-    } catch (error) {
-      console.error("Error during authentication:", error);
-    }
+      },
+      onSuccess: (res) => {
+        if (res.ok) {
+          window.location.href = "/";
+        } else {
+          console.error("Authentication failed");
+        }
+      },
+      onError: (err) => {
+        console.error("Error during authentication:", err);
+      },
+    });
   };
 
   return (

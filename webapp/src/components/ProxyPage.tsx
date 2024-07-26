@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import { Box, CircularProgress, Typography } from "@mui/material";
-import Home from "./Home";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { make_api_call } from "../api/api";
 import NotFoundPage from "./404";
+import Home from "./Home";
 
 interface ProxyResponse {
   _content: string;
@@ -12,7 +13,6 @@ const ProxyRouting: React.FC = () => {
   const domain = window.location.hostname;
   const isProxyFrame = domain.split(".").length === 3;
   const clusterName = domain.split(".")[0];
-  const navigate = useNavigate();
   console.log(domain);
 
   if (!isProxyFrame) {
@@ -36,24 +36,21 @@ const ClusterFrame: React.FC<{ cluster_name: string }> = ({ cluster_name }) => {
 
   useEffect(() => {
     const fetchClusterContent = async () => {
-      try {
-        const response = await fetch(
-          `/clusters/${cluster_name}${window.location.pathname}`,
-          {
-            credentials: "include",
+      await make_api_call({
+        path: `/clusters/${cluster_name}${window.location.pathname}`,
+        onSuccess: async (res) => {
+          if (res.ok) {
+            const content = await res.json();
+            setClusterContent(content);
+          } else {
+            setError("Failed to fetch cluster content");
           }
-        );
-
-        if (response.ok) {
-          const content = await response.json();
-          setClusterContent(content);
-        } else {
-          setError("Failed to fetch cluster content");
-        }
-      } catch (error) {
-        setError("Error fetching cluster content");
-        console.error("Error fetching cluster content:", error);
-      }
+        },
+        onError: (err) => {
+          setError("Error fetching cluster content");
+          console.error("Error fetching cluster content:", err);
+        },
+      });
     };
 
     fetchClusterContent();
