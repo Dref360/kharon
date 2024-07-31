@@ -14,7 +14,7 @@ sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, echo=True, connect_args=connect_args)
+engine = create_engine(sqlite_url, echo=False, connect_args=connect_args)
 
 
 def get_session():
@@ -23,7 +23,7 @@ def get_session():
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)
+        token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)
 ) -> User:
     if token.startswith("ss-"):
         # API Token
@@ -37,9 +37,9 @@ def get_current_user(
 
 
 def get_cluster(
-    cluster_name: str = Path(),
-    user: User = Depends(get_current_user),
-    session: Session = Depends(get_session),
+        cluster_name: str = Path(),
+        user: User = Depends(get_current_user),
+        session: Session = Depends(get_session),
 ) -> Cluster:
     cluster = session.exec(select(Cluster).where(Cluster.name == cluster_name)).first()
     if cluster is None:

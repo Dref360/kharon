@@ -1,12 +1,14 @@
 import logging
 from typing import Optional, List
 
+import fastapi
 import httpx
 import names_generator
 from fastapi import APIRouter, Depends, HTTPException, Query
 from httpx import Response
 from pydantic import BaseModel
 from sqlmodel import Session, select
+from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.responses import Response as StarletteResponse
@@ -129,10 +131,16 @@ def add_user_to_cluster(
     return "OK"
 
 
+async def get_stream(r):
+    async for i in r.aiter_raw():
+        yield i
+
+
 @api.api_route(
     "/{cluster_name}/{forward_path:path}",
     methods=["GET", "POST", "PUT", "DELETE"],
     summary="Proxy function",
+    response_class=fastapi.Response,
 )
 async def reverse_proxy(
     forward_path: str, request: Request, cluster: Cluster = Depends(get_cluster)
@@ -145,28 +153,24 @@ async def reverse_proxy(
     print("Proxy request", forward_path)
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.request(
-                method=request.method,
+            req = client.build_request(
+                request.method,
                 url=f"http://127.0.0.1:{ssh_tunnel.local_bind_port}/{forward_path}",
                 headers=request.headers,
                 content=await request.body(),
             )
-            print("Response", response.status_code)
-            content_type = response.headers.get('content-type', '')
-            if 'text/html' in content_type:
-                # If it's HTML, return it as HTMLResponse
-                return HTMLResponse(
-                    content=response.text,
-                    status_code=response.status_code,
-                    headers=dict(response.headers)
-                )
-            else:
-                # For other types, return as before
-                return StarletteResponse(
-                    content=response.content,
-                    status_code=response.status_code,
-                    headers=dict(response.headers),
-                )
-        except httpx.HTTPError:
+            print(req)
+
+            response = await client.send(req, stream=False)
+
+            content_type = response.headers.get("content-type", "")
+            content = response.content
+            return fastapi.responses.Response(
+                content,
+                status_code=response.status_code,
+                headers={k:v for k,v in dict(response.headers).items() if k not in [h.lower() for h in ['Content-Length', 'Content-Encoding']]},
+                media_type=content_type
+            )
+        except (httpx.HTTPError, httpx.ReadError):
             # TODO If the request fails, we should redirect to index.html for client-side routing
-            return HTTPException(500)
+            raise HTTPException(500)

@@ -1,4 +1,4 @@
-const BACKEND_URL = process.env.REACT_BACKEND_URL || "http://localhost:8000";
+export const BACKEND_URL = process.env.REACT_BACKEND_URL || "http://localhost:8000";
 
 const DEFAULT_OPTS: RequestInit = { credentials: "include" };
 
