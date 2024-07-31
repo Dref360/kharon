@@ -8,6 +8,8 @@ from httpx import Response
 from pydantic import BaseModel
 from sqlmodel import Session, select
 from starlette.requests import Request
+from starlette.responses import HTMLResponse
+from starlette.responses import Response as StarletteResponse
 
 from kharon import sshutils
 from kharon.auth import oauth2_scheme
@@ -150,11 +152,21 @@ async def reverse_proxy(
                 content=await request.body(),
             )
             print("Response", response.status_code)
-            return Response(
-                content=response.content,
-                status_code=response.status_code,
-                headers=dict(response.headers),
-            )
+            content_type = response.headers.get('content-type', '')
+            if 'text/html' in content_type:
+                # If it's HTML, return it as HTMLResponse
+                return HTMLResponse(
+                    content=response.text,
+                    status_code=response.status_code,
+                    headers=dict(response.headers)
+                )
+            else:
+                # For other types, return as before
+                return StarletteResponse(
+                    content=response.content,
+                    status_code=response.status_code,
+                    headers=dict(response.headers),
+                )
         except httpx.HTTPError:
             # TODO If the request fails, we should redirect to index.html for client-side routing
             return HTTPException(500)

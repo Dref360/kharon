@@ -61,8 +61,8 @@ async def auth_google(
             key="access_token",
             value=f"Bearer {access_token}",
             httponly=True,
-            secure=False,  # Use only with HTTPS
-            samesite="lax",
+            secure=True,  # Use only with HTTPS
+            samesite="none",
             domain="localhost",  # Notice the leading dot
             max_age=24 * 60 * 60,
         )  # 24 hours)
@@ -70,13 +70,10 @@ async def auth_google(
     except ValueError:
         raise HTTPException(status_code=401, detail="Invalid Google token")
 
+
 @app.post("/logout")
 async def logout(response: Response):
     response.delete_cookie(
-        key="access_token",
-        domain=".localhost",
-        secure=False,
-        httponly=True,
-        samesite="strict"
+        key="access_token", domain="localhost", secure=False, httponly=True, samesite="None"
     )
     return {"message": "Successfully logged out"}

@@ -136,7 +136,7 @@ const AppContent: React.FC = () => {
       >
         <Toolbar />
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/kh_login" element={<LoginPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
           {/*TODO Make 404 page */}
