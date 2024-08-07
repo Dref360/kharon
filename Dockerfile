@@ -30,4 +30,7 @@ RUN poetry config virtualenvs.create false && \
 # Install the project.
 COPY . /app/
 RUN poetry install  --no-interaction --no-ansi $(/usr/bin/test $STAGE == production && echo "--without dev")
-CMD ["sh","-c","poetry run fastapi run /app/kharon/app.py"]
+
+EXPOSE 8000
+ENV PORT=8000
+CMD ["sh","-c","poetry run fastapi run /app/kharon/app.py --host 0.0.0.0 --port 8000"]

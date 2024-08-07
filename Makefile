@@ -40,27 +40,27 @@ build: build_fe build_be build_service
 
 .PHONY: build_be
 build_be:
-	docker build -t dref360/kharon-backend .
+	docker build -t dref360/kharon-backend:latest .
 
 .PHONY: build_fe
 build_fe:
-	docker build -t dref360/kharon-frontend webapp
+	docker build -t dref360/kharon-frontend:latest webapp
 
 .PHONY: build_service
 build_service:
-	docker build -t dref360/kharon-service service
+	docker build -t dref360/kharon-service:latest service
 
 .PHONY: push
 push: push_fe push_be push_service
 
 .PHONY: build_be
 push_be:
-	docker push dref360/kharon-backend
+	docker push dref360/kharon-backend:latest
 
 .PHONY: build_fe
 push_fe:
-	docker push dref360/kharon-frontend
+	docker push dref360/kharon-frontend:latest
 
 .PHONY: build_service
 push_service:
-	docker push dref360/kharon-service
+	docker push dref360/kharon-service:latest
