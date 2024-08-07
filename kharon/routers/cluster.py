@@ -168,8 +168,12 @@ async def reverse_proxy(
             return fastapi.responses.Response(
                 content,
                 status_code=response.status_code,
-                headers={k:v for k,v in dict(response.headers).items() if k not in [h.lower() for h in ['Content-Length', 'Content-Encoding']]},
-                media_type=content_type
+                headers={
+                    k: v
+                    for k, v in dict(response.headers).items()
+                    if k not in [h.lower() for h in ["Content-Length", "Content-Encoding"]]
+                },
+                media_type=content_type,
             )
         except (httpx.HTTPError, httpx.ReadError):
             # TODO If the request fails, we should redirect to index.html for client-side routing

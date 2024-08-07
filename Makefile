@@ -35,3 +35,32 @@ REPORT_FOLDER ?= ./reports
 bandit: ./reports/security/bandit/ ## SECURITY - Run bandit
 		poetry run bandit ${SRC_FOLDER}/* -r -x "*.pyi,*/_generated/*,*__pycache__*" -v -ll -f json > ${REPORT_FOLDER}/security/bandit/index.json
 
+.PHONY: build
+build: build_fe build_be build_service
+
+.PHONY: build_be
+build_be:
+	docker build -t dref360/kharon-backend .
+
+.PHONY: build_fe
+build_fe:
+	docker build -t dref360/kharon-frontend webapp
+
+.PHONY: build_service
+build_service:
+	docker build -t dref360/kharon-service service
+
+.PHONY: push
+push: push_fe push_be push_service
+
+.PHONY: build_be
+push_be:
+	docker push dref360/kharon-backend
+
+.PHONY: build_fe
+push_fe:
+	docker push dref360/kharon-frontend
+
+.PHONY: build_service
+push_service:
+	docker push dref360/kharon-service

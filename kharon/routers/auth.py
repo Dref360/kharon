@@ -15,8 +15,6 @@ from kharon.models import User
 
 # Google OAuth2 configuration
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/auth"
-GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 log = logging.getLogger()
 app = APIRouter()
@@ -45,9 +43,6 @@ async def auth_google(
         print(idinfo)
         user_id = idinfo["sub"]
 
-        # Here you would typically:
-        # 1. Check if the user exists in your database
-        # 2. Create a new user if they don't exist
         if not dbutils.user_exists(email=idinfo["email"], session=session):
             log.info(f"New user! {idinfo['email']}")
             user = User(email=idinfo["email"])
