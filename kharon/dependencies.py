@@ -1,16 +1,20 @@
-from fastapi import Depends, HTTPException, Query, Path
+import logging
+import os
+
+from fastapi import Depends, HTTPException, Path
 from sqlalchemy import create_engine
 from sqlmodel import Session, select
 
 from kharon.auth import get_user_by_api_key, get_user_from_access_token, oauth2_scheme
+from kharon.constants import KHARON_STORAGE
 from kharon.iam import has_access_to_resource
 from kharon.models import User, Cluster
-import logging
 
 log = logging.getLogger()
+pjoin = os.path.join
 
 # Setup Database
-sqlite_file_name = "database.db"
+sqlite_file_name = pjoin(KHARON_STORAGE, "database.db")
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 connect_args = {"check_same_thread": False}

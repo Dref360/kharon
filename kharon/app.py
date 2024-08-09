@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel, Session, select
 
 from kharon.auth import create_api_key
+from kharon.constants import KHARON_STORAGE
 from kharon.dependencies import get_current_user, engine
 from kharon.models import *  # noqa Need this to load models into SQLModel
 from kharon.models.clusters import ClusterStatus
@@ -68,5 +69,6 @@ app.include_router(
     public_router,
     prefix="/public",
 )
+print("Storage:", KHARON_STORAGE)
 for r in app.routes:
     print("Route", dict(methods=r.__dict__.get("methods"), path=r.__dict__["path"]))

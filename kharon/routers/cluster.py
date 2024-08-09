@@ -122,7 +122,7 @@ def add_user_to_cluster(
 
 
 @api.delete("/remove_user/{cluster_name}", summary="Remove user to a cluster")
-def add_user_to_cluster(
+def remove_user_to_cluster(
     email: str = Query(...),
     cluster: Cluster = Depends(get_cluster),
     session: Session = Depends(get_session),

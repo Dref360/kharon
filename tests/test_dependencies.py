@@ -26,7 +26,7 @@ def test_has_read_access(session):
     session.commit()
 
     one_cluster = Cluster(creator=one_user.id, name="App Cluster", host='0.0.0.0', user_read_allow=one_user.email,
-                          status=ClusterStatus.healthy)
+                          status=ClusterStatus.healthy, remote_host='localhost')
     session.add(one_cluster)
     session.commit()
     session.refresh(one_cluster)

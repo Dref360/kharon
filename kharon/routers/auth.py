@@ -69,6 +69,6 @@ async def auth_google(
 @app.post("/logout")
 async def logout(response: Response):
     response.delete_cookie(
-        key="access_token", domain="localhost", secure=False, httponly=True, samesite="None"
+        key="access_token", domain="localhost", secure=False, httponly=True, samesite="none"
     )
     return {"message": "Successfully logged out"}

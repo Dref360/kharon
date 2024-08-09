@@ -3,10 +3,9 @@ import os
 import subprocess
 from typing import Tuple
 
-from platformdirs import user_cache_dir
 from sshtunnel import SSHTunnelForwarder
 
-from kharon.auth import hash_token
+from kharon.constants import KHARON_STORAGE
 
 SSH_USERNAME = "shared"
 
@@ -20,7 +19,7 @@ def get_ssh_keys(name: str) -> Tuple[str, str]:
     Returns:
         Private and Public key file.
     """
-    cachedir = pjoin(user_cache_dir("shared-science", "shared-science"), "sshkey")
+    cachedir = pjoin(KHARON_STORAGE, "sshkey")
     os.makedirs(cachedir, exist_ok=True)
     private_key_file = pjoin(cachedir, f"{name}.key")
     public_key_file = pjoin(cachedir, f"{name}.key.pub")
@@ -31,7 +30,7 @@ def get_ssh_keys(name: str) -> Tuple[str, str]:
 
 def get_ssh_tunnel(ip, port, remote_host, private_key) -> SSHTunnelForwarder:
     """Start an SSH Tunnel"""
-    cachedir = pjoin(user_cache_dir("shared-science", "shared-science"), "sshkey")
+    cachedir = pjoin(KHARON_STORAGE, "sshkey")
     print(
         dict(
             host=(ip, port),
