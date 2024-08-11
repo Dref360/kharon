@@ -2,6 +2,9 @@
 
 Our app is fairly simple.
 
+<img width="1406" alt="shapes at 24-08-11 13 09 29" src="https://github.com/user-attachments/assets/c3ff07a5-20c1-4dd2-b6cd-6db6178f57aa">
+
+
 * Frontend
     * Cloud Run
     * ENV VAR:
