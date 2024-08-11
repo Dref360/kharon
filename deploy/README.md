@@ -6,7 +6,7 @@ Our app is fairly simple.
 
 
 * Frontend
-    * Cloud Run
+    * App Engine
     * ENV VAR:
         * REACT_APP_GOOGLE_CLIENT_ID
         * REACT_APP_BACKEND_URL
@@ -15,7 +15,7 @@ Our app is fairly simple.
     * ENV VAR:
         * GOOGLE_CLIENT_ID
         * GOOGLE_CLIENT_SECRET
+        * KHARON_STORAGE
 
 **Notes**
-- The SQL Database is not permanent. This needs to be fixed.
-    - We could mount a GCloud volume [Link](https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts#gcloud)
+- The SQL Database is stored in a GStorage as a SQLite db. Could move to Cloud SQL, but it is pricy.
