@@ -6,7 +6,7 @@ deploy: deploy_be deploy_fe
 
 .PHONY: deploy_be
 deploy_be:
-	gcloud run deploy kharon-backend \
+	gcloud beta run deploy kharon-backend \
 	--image dref360/kharon-backend:latest \
 	--platform managed --region ${REGION} \
 	--allow-unauthenticated --port 8000 \
@@ -18,4 +18,4 @@ deploy_be:
 
 .PHONY: deploy_fe
 deploy_fe:
-	cd ../webapp && gcloud app deploy
+	cd ../webapp && gcloud app deploy --quiet

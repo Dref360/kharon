@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel, Session, select
 
 from kharon.auth import create_api_key
-from kharon.constants import KHARON_STORAGE
+from kharon.constants import KHARON_STORAGE, KHR_DEBUG
 from kharon.dependencies import get_current_user, engine
 from kharon.models import *  # noqa Need this to load models into SQLModel
 from kharon.models.clusters import ClusterStatus
@@ -21,7 +21,7 @@ log = logging.getLogger()
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
-    if os.getenv("SS_DEBUG"):
+    if KHR_DEBUG:
         # Creating temp user for debugging
         temp_email = "temp@temp.com"
         with Session(engine) as session:
@@ -35,12 +35,13 @@ def create_db_and_tables():
                     creator=temp.id,
                     name="potato-whiskey",
                     host="172.20.128.2",
+                    remote_host="localhost",
                     status=ClusterStatus.healthy,
                     user_read_allow=temp.email,
                 )
                 session.add(cluster)
                 session.commit()
-            token = create_api_key(temp.id, session=session)
+            token = create_api_key(temp.id, key_name="temp", session=session)
             print("User:", temp.email)
             print("API Token:", token)
 
@@ -50,7 +51,9 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"http:\/\/.*\.?(localdev.me|localhost):3000",
+    allow_origin_regex=(
+        r"http:\/\/.*\.?(localdev.me|localhost):3000" if KHR_DEBUG else "https:\/\/.*\.?(kharon.app)"
+    ),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -6,8 +6,8 @@ services:
     hostname: openssh-server #optional
     environment:
       - DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel
-      - KHARON_SERVER=http://host.docker.internal:8000
-      - KHARON_API_KEY=ss-5fSsI5dYIRbrwKMkED-RQ9cAJQHamU9vhy8PunGnjbI
+      - KHARON_SERVER=https://kharon-backend-brgvy5d6mq-uk.a.run.app
+      - KHARON_API_KEY=${KHARON_API_KEY}
       - KHARON_REMOTE_HOST=host.docker.internal
       - PUID=1000
       - PGID=1000

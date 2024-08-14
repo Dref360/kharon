@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import APIRouter, HTTPException, Depends
-from fastapi import Body
+from fastapi import Body, Request
 from google.auth.transport import requests
 from google.oauth2.id_token import verify_oauth2_token
 from pydantic import BaseModel
@@ -10,6 +10,7 @@ from starlette.responses import Response
 
 from kharon import dbutils
 from kharon.auth import GOOGLE_CLIENT_ID, create_access_token
+from kharon.constants import KHR_DEBUG
 from kharon.dependencies import get_session
 from kharon.models import User
 
@@ -26,7 +27,10 @@ class CodeFlow(BaseModel):
 
 @app.post("/google")
 async def auth_google(
-    response: Response, body: CodeFlow = Body(...), session: Session = Depends(get_session)
+    response: Response,
+    request: Request,
+    body: CodeFlow = Body(...),
+    session: Session = Depends(get_session),
 ):
     """Authentify access code
 
@@ -58,7 +62,7 @@ async def auth_google(
             httponly=True,
             secure=True,  # Use only with HTTPS
             samesite="none",
-            domain="localhost",  # Notice the leading dot
+            domain="localhost" if KHR_DEBUG else request.url.netloc,  # Notice the leading dot
             max_age=24 * 60 * 60,
         )  # 24 hours)
         return {"access_token": access_token, "token_type": "bearer"}

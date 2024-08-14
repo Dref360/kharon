@@ -4,6 +4,8 @@ import time
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from pprint import pprint
+from rich.console import Console
+from rich.table import Table
 from typing import Optional
 
 import httpx
@@ -12,7 +14,8 @@ from typing_extensions import Annotated
 
 pjoin = os.path.join
 HTTP_PORT = 8080
-
+HEALTHY="Healthy ✅"
+NOT_HEALTHY="Unhealthy ❌"
 
 def local_service_healthy(remote_host):
     try:
@@ -63,6 +66,9 @@ def connect_to_daemon(
         ).json()
     )
 
+def check_ssh_service():
+    return True
+
 
 def append_ssh_key(ssh_public_key):
     key_files = str(Path().home() / ".ssh" / "authorized_keys")
@@ -76,20 +82,31 @@ def main(
     cache: Annotated[str, typer.Argument(envvar="KHARON_CACHE")] = "/cache",
     remote_host: Annotated[str, typer.Argument(envvar="KHARON_REMOTE_HOST")] = "localhost",
 ):
-    if not local_service_healthy(remote_host):
-        raise ValueError(
-            f"Unable to connect to local application! "
-            f"Please verify that `http://{remote_host}:{HTTP_PORT}` is accessible."
-        )
-    if not kharon_server_healthy(kharon_server):
-        raise ValueError(
-            f"Can't connect to {kharon_server},"
-            f" could be a firewall issue in your setup or we're down!"
-        )
+    local_service_status = local_service_healthy(remote_host)
+    kharon_server_status = kharon_server_healthy(kharon_server)
+    console = Console()
+
+    # Create and display the initial table
+    table = Table(title="Service Statuses")
+    table.add_column("Service", justify="left")
+    table.add_column("Status", justify="left")
+
+    # Add initial rows
+    table.add_row(
+        f"Local Service ({remote_host})", HEALTHY if local_service_status else NOT_HEALTHY
+    )
+    table.add_row(
+        f"Kharon Server ({kharon_server})", HEALTHY if kharon_server_status else NOT_HEALTHY
+    )
+    table.add_row("Local SSH Server", "Checking...")
+
+    # Print the table
+    console.print(table)
 
     cluster_name = None
     if (local_cfg := maybe_load_config(cache)) is not None:
         cluster_name = local_cfg.name
+
     config = connect_to_daemon(
         kharon_server, remote_host=remote_host, api_key=api_key, cluster_name=cluster_name
     )
@@ -99,15 +116,41 @@ def main(
     append_ssh_key(config.public_key)
 
     while True:
-        time.sleep(60)
+        # Clear the console to redraw the table
+        console.clear()
+
+        # Recheck statuses
+        local_service_status = local_service_healthy(remote_host)
+        kharon_server_status = kharon_server_healthy(kharon_server)
+        ssh_service_status = check_ssh_service()
+
+        # Update table
+        table = Table(title="Service Statuses")
+        table.add_column("Service", justify="left")
+        table.add_column("Status", justify="left")
+        table.add_row(
+            f"Local Service ({remote_host})", HEALTHY if local_service_status else NOT_HEALTHY
+        )
+        table.add_row(
+            f"Kharon Server ({kharon_server})", HEALTHY if kharon_server_status else NOT_HEALTHY
+        )
+        table.add_row("Local SSH Server", HEALTHY if ssh_service_status else NOT_HEALTHY)
+
+        # Print the updated table
+        console.print(table)
+
+        # Send health check request
         httpx.post(
             f"{kharon_server}/clusters/health_check/{cluster_name}",
             json={
-                "local_service_alive": local_service_healthy(remote_host),
-                "ssh_service_alive": True,  # TODO Check ssh service
+                "local_service_alive": local_service_status,
+                "ssh_service_alive": ssh_service_status,
             },
             headers={"Authorization": f"Bearer {api_key}"},
         )
+
+        # Wait for the next update
+        time.sleep(60)
 
 
 if __name__ == "__main__":

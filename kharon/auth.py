@@ -12,7 +12,7 @@ from sqlmodel import Session, select
 from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from kharon.models import User, APIKey
+from kharon.models import APIKey, User
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
@@ -29,7 +29,7 @@ class OAuth2PasswordBearerWithCookie(OAuth2PasswordBearer):
                 raise HTTPException(
                     status_code=HTTP_401_UNAUTHORIZED,
                     detail="Not authenticated",
-                    headers={"WWW-Authenticate": "Bearer"},
+                    headers={"WWW-Authenticate": scheme},
                 )
             else:
                 return None
