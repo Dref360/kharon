@@ -1,3 +1,7 @@
+.PHONY: launch
+launch:
+	KHR_DEBUG=1 poetry run fastapi dev kharon/app.py --host 0.0.0.0
+
 .PHONY: lint
 lint: check-mypy-error-count
 	poetry run flake8 kharon service
