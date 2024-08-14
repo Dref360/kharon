@@ -18,4 +18,4 @@ deploy_be:
 
 .PHONY: deploy_fe
 deploy_fe:
-	cd ../webapp && gcloud app deploy
+	cd ../webapp && gcloud app deploy --quiet
