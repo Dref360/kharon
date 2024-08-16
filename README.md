@@ -26,7 +26,7 @@ Kharon is a FastAPI-based reverse proxy server with Google Authentication. It al
 - [x] **FastAPI:** Utilizes the FastAPI framework for efficient and fast development.
 - [x] **API Key Management:** Users can create/delete keys.
 - [x] **KharonDaemon (KHD):** Small daemon that we can [tunnel](https://pypi.org/project/sshtunnel/) into with SSH.
-  - [x] **SSH Server**
+  - [x] **SSH Server (port 2222)**
   - [x] **Automatic registration to host**
   - [x] **Reverse Proxy:** Directs incoming requests to the appropriate backend services.
 
