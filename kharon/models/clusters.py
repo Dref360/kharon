@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlmodel import Field
 
-from kharon.models.model_utils import ResourceSQLModel, mapper_registry
+from kharon.models.model_utils import ResourceSQLModel
 
 
 class ClusterStatus(str, Enum):

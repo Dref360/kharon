@@ -5,8 +5,8 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from kharon.auth import create_api_key, disable_api_key
-from kharon.dependencies import get_session, get_current_user
-from kharon.models import User, APIKey
+from kharon.dependencies import get_current_user, get_session
+from kharon.models import APIKey, User
 from kharon.typing import assert_not_none
 
 api = APIRouter()

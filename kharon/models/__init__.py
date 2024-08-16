@@ -1,4 +1,4 @@
 # Import all tables
 from .clusters import Cluster
 from .jobs import Job
-from .users import User, APIKey
+from .users import APIKey, User

@@ -1,13 +1,12 @@
 import logging
-import os
 
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import SQLModel, Session, select
+from sqlmodel import Session, SQLModel, select
 
 from kharon.auth import create_api_key
 from kharon.constants import KHARON_STORAGE, KHR_DEBUG
-from kharon.dependencies import get_current_user, engine
+from kharon.dependencies import engine, get_current_user
 from kharon.models import *  # noqa Need this to load models into SQLModel
 from kharon.models.clusters import ClusterStatus
 from kharon.routers.api import api as app_router

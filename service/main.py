@@ -1,15 +1,14 @@
 import json
 import os.path
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from pprint import pprint
-from rich.console import Console
-from rich.table import Table
 from typing import Optional
 
 import httpx
 import typer
+from rich.console import Console
+from rich.table import Table
 from typing_extensions import Annotated
 
 pjoin = os.path.join

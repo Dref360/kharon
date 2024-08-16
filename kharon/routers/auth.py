@@ -1,7 +1,6 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi import Body, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from google.auth.transport import requests
 from google.oauth2.id_token import verify_oauth2_token
 from pydantic import BaseModel
