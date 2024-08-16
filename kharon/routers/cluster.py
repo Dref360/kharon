@@ -4,7 +4,7 @@ from typing import List, Optional
 import fastapi
 import httpx
 import names_generator
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlmodel import Session, select
 from starlette.requests import Request
@@ -13,10 +13,10 @@ from kharon import sshutils
 from kharon.auth import oauth2_scheme
 from kharon.dependencies import get_cluster, get_current_user, get_session
 from kharon.models import Cluster, User
-from kharon.models.clusters import ClusterStatus
+from kharon.models.clusters import ClusterStatus, HealthCheck
 from kharon.typing import assert_not_none
 
-api = APIRouter()
+api = APIRouter(redirect_slashes=False)
 
 log = logging.getLogger()
 
@@ -43,7 +43,7 @@ def get_connect_daemon(
     is_new_cluster = name in ("", None)
     cluster_name = name if not is_new_cluster else names_generator.generate_name(style="hyphen")
 
-    client_host = assert_not_none(request.client).host
+    client_host = request.headers.get("x-forwarded-for") or assert_not_none(request.client).host
     _, ssh_public_key = sshutils.get_ssh_keys(cluster_name)
     if is_new_cluster:
         log.info(f"New Cluster {cluster_name}")
@@ -59,7 +59,8 @@ def get_connect_daemon(
         session.add(cluster)
         session.commit()
     else:
-        log.info(f"Existing Cluster: {cluster_name}")
+        print(f"Existing Cluster: {cluster_name}, {client_host=}, {remote_host=} ")
+        print("Headers", dict(request.headers))
         check_exist = session.exec(
             select(Cluster).where(Cluster.name == name).where(Cluster.creator == user.id)
         ).first()
@@ -71,6 +72,8 @@ def get_connect_daemon(
             check_exist.remote_host = remote_host
             session.add(check_exist)
             session.commit()
+            session.refresh(check_exist)
+            print("Update", check_exist)
     return ConnectionResponse(name=cluster_name, public_key=open(ssh_public_key, "r").read())
 
 
@@ -123,6 +126,16 @@ def remove_user_to_cluster(
     session: Session = Depends(get_session),
 ):
     cluster.remove_user(email, session)
+    return "OK"
+
+
+@api.post("/clusters/health_check/{cluster_name}", summary="Daemon reporting back")
+def cluster_daemon_healthcheck(
+    cluster: Cluster = Depends(get_cluster),
+    session: Session = Depends(get_session),
+    health_check: HealthCheck = Body(...),
+):
+    # TODO Should update the db probably
     return "OK"
 
 

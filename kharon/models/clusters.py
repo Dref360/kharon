@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Optional
 
+from pydantic.v1 import BaseModel
 from sqlmodel import Field
 
 from kharon.models.model_utils import ResourceSQLModel
@@ -24,3 +25,8 @@ class Cluster(ResourceSQLModel, table=True):  # type: ignore
     status: ClusterStatus
     # Unused for now
     type: ClusterType = ClusterType.docker
+
+
+class HealthCheck(BaseModel):
+    local_service_alive: bool
+    ssh_service_alive: bool

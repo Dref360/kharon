@@ -1,0 +1,13 @@
+site_name: Kharon
+site_url: https://dref360.github.io/kharon
+theme:
+  name: material
+  logo: assets/logo.svg
+  palette:
+    primary: deep purple
+  features:
+    - content.code.copy
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
