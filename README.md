@@ -1,9 +1,11 @@
 <p align="center">
    <img src="docs/assets/logo.svg", width="35%">
 </p>
+<p align="center">
+   🚀 <a href="https://kharon.app">https://kharon.app</a> 🚀
+</p>
 
 
-⚠️ Under Construction! ⚠️
 
 **Reverse Proxy Server with Authentication and Authorization**
 
