@@ -31,16 +31,6 @@ def get_ssh_keys(name: str) -> Tuple[str, str]:
 def get_ssh_tunnel(ip, port, remote_host, private_key) -> SSHTunnelForwarder:
     """Start an SSH Tunnel"""
     cachedir = pjoin(KHARON_STORAGE, "sshkey")
-    print(
-        dict(
-            host=(ip, port),
-            ssh_pkey=private_key,
-            ssh_private_key_password="",
-            ssh_username=SSH_USERNAME,
-            host_pkey_directories=cachedir,
-            remote_bind_address=(remote_host, 8080),
-        )
-    )
     server = SSHTunnelForwarder(
         (ip, port),
         ssh_pkey=private_key,

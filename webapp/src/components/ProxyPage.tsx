@@ -10,24 +10,26 @@ interface ProxyResponse {
 }
 
 const ProxyRouting: React.FC = () => {
-  const domain = window.location.hostname;
-  const isProxyFrame = domain.split(".").length === 3;
-  const clusterName = domain.split(".")[0];
-  console.log(domain);
-
-  if (!isProxyFrame) {
-    if (window.location.pathname === "/") {
-      return <Home />;
-    } else {
-      return <NotFoundPage />;
-    }
+  let { clusterName } = useParams();
+  if (!clusterName) {
+    return <NotFoundPage />;
   }
   return <ClusterFrame cluster_name={clusterName} />;
 };
 
 const ClusterFrame: React.FC<{ cluster_name: string }> = ({ cluster_name }) => {
+  /**
+   * This component task is to render the user service.
+   * It does so by creating an Iframe to ${BACKEND_URL}/clusters/{cluster_name}...
+   *
+   * Notes:
+   *  This is not fool-proof, if a page makes a requests it wont necessarily work.
+   *
+   * Todo:
+   *  To display a loading screen, we probably need to make the request ourselves.
+   */
   const [clusterContent, setClusterContent] = useState<ProxyResponse | null>(
-    null
+    null,
   );
   const [error, setError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -48,11 +50,11 @@ const ClusterFrame: React.FC<{ cluster_name: string }> = ({ cluster_name }) => {
       </Box>
     );
   }
-
+  // NOTE the FE path needs to be the same as the BE so /clusters/{name}/other_stuff?param=1
   return (
     <Box sx={{ width: "100%", height: "calc(100vh - 64px)" }}>
       <iframe
-        src={`${BACKEND_URL}/clusters/${cluster_name}${window.location.pathname}`}
+        src={`${BACKEND_URL}${window.location.pathname}`}
         style={{ width: "100%", height: "100%", border: "none" }}
         title={`Cluster: ${cluster_name}`}
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups"

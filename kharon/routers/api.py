@@ -44,6 +44,5 @@ def create_user_api_key(
 def delete_user_api_key(
     user: User = Depends(get_current_user), key_name: str = Query(...), session=Depends(get_session)
 ):
-    print("Allo")
     disable_api_key(user_id=assert_not_none(user.id), key_name=key_name, session=session)
     return "OK"

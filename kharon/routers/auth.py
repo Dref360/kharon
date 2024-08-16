@@ -44,7 +44,6 @@ async def auth_google(
         idinfo = verify_oauth2_token(body.idToken, requests.Request(), GOOGLE_CLIENT_ID)
 
         # You should add more checks here, like checking the audience, expiration, etc.
-        print(idinfo)
         user_id = idinfo["sub"]
 
         if not dbutils.user_exists(email=idinfo["email"], session=session):

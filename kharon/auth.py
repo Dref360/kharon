@@ -21,6 +21,7 @@ ALGORITHM = "HS256"
 
 
 class OAuth2PasswordBearerWithCookie(OAuth2PasswordBearer):
+    # Same as OAuth2PasswordBearer, but looks in the cookies too.
     async def __call__(self, request: Request) -> Optional[str]:
         authorization = request.cookies.get("access_token") or request.headers.get("Authorization")
         scheme, param = get_authorization_scheme_param(authorization)
@@ -49,7 +50,6 @@ def create_access_token(data: dict):
 
 def get_user_from_access_token(access_token: str, session: Session) -> Optional[User]:
     data = jwt.decode(access_token, GOOGLE_CLIENT_SECRET, algorithms=[ALGORITHM])
-    print(data)
     if data["issued_to"] == GOOGLE_CLIENT_ID:
         email = data["email"]
         return session.exec(select(User).where(User.email == email)).first()
