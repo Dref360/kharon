@@ -8,7 +8,7 @@ from sqlmodel import Session, select
 from kharon.auth import get_user_by_api_key, get_user_from_access_token, oauth2_scheme
 from kharon.constants import KHARON_STORAGE
 from kharon.iam import has_access_to_resource
-from kharon.models import User, Cluster
+from kharon.models import Cluster, User
 
 log = logging.getLogger()
 pjoin = os.path.join

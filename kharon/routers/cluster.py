@@ -1,23 +1,18 @@
 import logging
-from typing import Optional, List
+from typing import List, Optional
 
 import fastapi
 import httpx
 import names_generator
 from fastapi import APIRouter, Depends, HTTPException, Query
-from httpx import Response
 from pydantic import BaseModel
 from sqlmodel import Session, select
-from starlette.background import BackgroundTask
 from starlette.requests import Request
-from starlette.responses import HTMLResponse
-from starlette.responses import Response as StarletteResponse
 
 from kharon import sshutils
 from kharon.auth import oauth2_scheme
-from kharon.dependencies import get_cluster
-from kharon.dependencies import get_session, get_current_user
-from kharon.models import User, Cluster
+from kharon.dependencies import get_cluster, get_current_user, get_session
+from kharon.models import Cluster, User
 from kharon.models.clusters import ClusterStatus
 from kharon.typing import assert_not_none
 

@@ -1,12 +1,12 @@
 # type: ignore
 import json
-from typing import Generic, TypeVar, Optional, List
+from typing import Generic, Optional, TypeVar
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import parse_obj_as
 from pydantic.v1.main import ModelMetaclass
 from sqlalchemy.orm import registry
-from sqlmodel import TypeDecorator, JSON, SQLModel, Field, Column, Session
+from sqlmodel import JSON, Field, Session, SQLModel, TypeDecorator
 
 T = TypeVar("T")
 

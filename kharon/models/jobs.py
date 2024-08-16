@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import Optional, List
+from typing import List, Optional
 
-from sqlmodel import Field, SQLModel, Column
+from sqlmodel import Column, Field, SQLModel
 
 from kharon.models.model_utils import pydantic_column_type  # type: ignore
 

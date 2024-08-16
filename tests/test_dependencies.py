@@ -4,7 +4,7 @@ from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 
 from kharon.dependencies import get_cluster
-from kharon.models import User, Cluster
+from kharon.models import Cluster, User
 from kharon.models.clusters import ClusterStatus
 
 
@@ -25,8 +25,14 @@ def test_has_read_access(session):
     session.add(second_user)
     session.commit()
 
-    one_cluster = Cluster(creator=one_user.id, name="App Cluster", host='0.0.0.0', user_read_allow=one_user.email,
-                          status=ClusterStatus.healthy, remote_host='localhost')
+    one_cluster = Cluster(
+        creator=one_user.id,
+        name="App Cluster",
+        host="0.0.0.0",
+        user_read_allow=one_user.email,
+        status=ClusterStatus.healthy,
+        remote_host="localhost",
+    )
     session.add(one_cluster)
     session.commit()
     session.refresh(one_cluster)
