@@ -11,8 +11,8 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    await callLogout().then((res) => setIsLoggedIn(!res))
-  }
+    await callLogout().then((res) => setIsLoggedIn(!res));
+  };
 
   useEffect(() => {
     async function fetchAuthStatus() {

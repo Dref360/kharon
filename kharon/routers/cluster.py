@@ -159,7 +159,6 @@ async def reverse_proxy(
                 headers=request.headers,
                 content=await request.body(),
             )
-            print(req)
 
             response = await client.send(req, stream=False)
 

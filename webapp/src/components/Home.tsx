@@ -13,7 +13,7 @@ import React, { useState } from "react";
 const Command = () => {
   const [open, setOpen] = useState(false);
 
-  const exportCommand = "export KHARON_API_KEY="
+  const exportCommand = "export KHARON_API_KEY=";
   const downloadCommand = `curl -O https://raw.githubusercontent.com/Dref360/kharon/main/service/docker-compose.yml && docker-compose up -d`;
 
   const copyToClipboard = (command: string) => {
@@ -27,7 +27,7 @@ const Command = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, p:"10px", display: "inline" }}>
+    <Container maxWidth="md" sx={{ mt: 4, p: "10px", display: "inline" }}>
       <Typography variant="h4" gutterBottom>
         Get Started
       </Typography>
@@ -66,7 +66,7 @@ const Command = () => {
           Copy
         </Button>
       </Paper>
-      <Typography variant="h5" gutterBottom sx={{mt:"10px"}}>
+      <Typography variant="h5" gutterBottom sx={{ mt: "10px" }}>
         Start Your Service
       </Typography>
       <Typography variant="body1" paragraph>

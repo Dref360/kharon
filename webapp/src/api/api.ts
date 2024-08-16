@@ -1,11 +1,12 @@
-export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+export const BACKEND_URL =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
 
 const DEFAULT_OPTS: RequestInit = { credentials: "include" };
 
 interface APICallProps<Type> {
   path: string;
   method?: string;
-  options?: object
+  options?: object;
   onSuccess: (res: Response) => Type;
   onError?: (err: Error) => any;
 }

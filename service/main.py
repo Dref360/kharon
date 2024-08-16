@@ -14,8 +14,9 @@ from typing_extensions import Annotated
 
 pjoin = os.path.join
 HTTP_PORT = 8080
-HEALTHY="Healthy ✅"
-NOT_HEALTHY="Unhealthy ❌"
+HEALTHY = "Healthy ✅"
+NOT_HEALTHY = "Unhealthy ❌"
+
 
 def local_service_healthy(remote_host):
     try:
@@ -28,7 +29,8 @@ def local_service_healthy(remote_host):
 
 def kharon_server_healthy(kharon_server):
     try:
-        httpx.get(kharon_server)
+        # Give larger timeout
+        httpx.get(kharon_server, timeout=10.0)
         return True
     except httpx.ConnectError as e:
         print(e)
@@ -58,19 +60,45 @@ def save_config(config: ClusterConfig, cache):
 
 def connect_to_daemon(
     kharon_server: str, remote_host: str, api_key: str, cluster_name: Optional[str]
-):
-    return ClusterConfig(
-        **httpx.get(
-            f"{kharon_server}/clusters/connect?name={cluster_name or ''}&remote_host={remote_host}",
-            headers={"Authorization": f"Bearer {api_key}"},
-        ).json()
+) -> ClusterConfig:
+    """Connect Daemon to Kharon Backnd
+
+    Args:
+        kharon_server : URL of Kharon Backend
+        remote_host (str): URL of the local HTTP Server
+        api_key (str): Your stored KHARON_API_KEY
+        cluster_name (Optional[str]): If this is a restart, supply the name of the clusters.
+
+    Returns:
+        ClusterConfig, the current config.
+    """
+    response = httpx.get(
+        f"{kharon_server}/clusters/connect?name={cluster_name or ''}&remote_host={remote_host}",
+        headers={"Authorization": f"Bearer {api_key}"},
     )
+    if response.status_code == 404 and cluster_name is not None:
+        # Need a new name unfortunatly. Something is missing from db.
+        response = httpx.get(
+            f"{kharon_server}/clusters/connect?remote_host={remote_host}",
+            headers={"Authorization": f"Bearer {api_key}"},
+        )
+    return ClusterConfig(**response.json())
+
 
 def check_ssh_service():
+    # TODO, I don't know if this can fail or how to look at it.
     return True
 
 
-def append_ssh_key(ssh_public_key):
+def append_ssh_key(ssh_public_key: str):
+    """Append SSH Key to `authorized_keys`
+
+    Args:
+        ssh_public_key: Public key to add
+
+    Notes:
+        This always append, it doesn't look for duplicates.
+    """
     key_files = str(Path().home() / ".ssh" / "authorized_keys")
     with open(key_files, "a") as f:
         f.write(ssh_public_key)
@@ -110,8 +138,7 @@ def main(
     config = connect_to_daemon(
         kharon_server, remote_host=remote_host, api_key=api_key, cluster_name=cluster_name
     )
-    print("Config")
-    pprint(config)
+    cluster_name = cluster_name = config.name
     save_config(config, cache)
     append_ssh_key(config.public_key)
 
@@ -125,7 +152,10 @@ def main(
         ssh_service_status = check_ssh_service()
 
         # Update table
-        table = Table(title="Service Statuses")
+        table = Table(
+            title="Service Statuses",
+            caption=f"Access this at https://kharon.app/clusters/{cluster_name}",
+        )
         table.add_column("Service", justify="left")
         table.add_column("Status", justify="left")
         table.add_row(

@@ -30,7 +30,6 @@ def create_db_and_tables():
                 session.add(temp)
                 session.commit()
                 session.refresh(temp)
-                # TODO very bad
                 cluster = Cluster(
                     creator=temp.id,
                     name="potato-whiskey",
@@ -52,7 +51,9 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=(
-        r"http:\/\/.*\.?(localdev.me|localhost):3000" if KHR_DEBUG else "https:\/\/.*\.?(kharon.app)"
+        r"http:\/\/.*\.?(localdev.me|localhost):3000"
+        if KHR_DEBUG
+        else r"https:\/\/.*\.?(kharon.app)"
     ),
     allow_credentials=True,
     allow_methods=["*"],

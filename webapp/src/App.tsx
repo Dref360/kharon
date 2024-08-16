@@ -137,11 +137,12 @@ const AppContent: React.FC = () => {
         <Toolbar />
         <Routes>
           <Route path="/kh_login" element={<LoginPage />} />
+          <Route path="" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
-          {/*TODO Make 404 page */}
           <Route path="/404" element={<NotFoundPage />} />
-          <Route path="*" element={<ProxyRouting />} />
+          <Route path="/clusters/:clusterName" element={<ProxyRouting />} />
+          <Route path="/clusters/:clusterName/*" element={<ProxyRouting />} />
         </Routes>
       </Box>
     </Box>

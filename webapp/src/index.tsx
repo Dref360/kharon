@@ -5,7 +5,7 @@ import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 const GOOGLE_ACCESS_KEY = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
 const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
+  document.getElementById("root") as HTMLElement,
 );
 
 root.render(
@@ -15,5 +15,5 @@ root.render(
         <App />
       </BrowserRouter>
     </GoogleOAuthProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

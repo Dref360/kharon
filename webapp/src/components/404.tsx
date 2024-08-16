@@ -7,9 +7,7 @@ const NotFoundPage: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         404 Not Found
       </Typography>
-      <Typography variant="body1">
-        We can't find this page. :(
-      </Typography>
+      <Typography variant="body1">We can't find this page. :(</Typography>
     </Paper>
   );
 };
