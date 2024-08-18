@@ -143,6 +143,7 @@ const AppContent: React.FC = () => {
           <Route path="/404" element={<NotFoundPage />} />
           <Route path="/clusters/:clusterName" element={<ProxyRouting />} />
           <Route path="/clusters/:clusterName/*" element={<ProxyRouting />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Box>
     </Box>

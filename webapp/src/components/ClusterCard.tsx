@@ -156,7 +156,7 @@ const ClusterCard: React.FC<ClusterProps> = ({
       {/*TODO Point to correct link. */}
       <CardActionArea
         onClick={() => {
-          window.location.href = `/clusters/${name}`;
+          window.location.href = `/clusters/${name}/`;
         }}
       >
         <CardMedia
